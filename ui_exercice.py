@@ -6,6 +6,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 
 from exercice import Infinite
+from exercice import Saccade
+
 from recording import Object_recorder
 
 class UI_main_excercice(QWidget):
@@ -28,74 +30,46 @@ class UI_main_excercice(QWidget):
         self.button_start_calibration_lens = QPushButton("Lens")
         self.button_start_calibration_lens.clicked.connect(self.start_calibration_lens)
 
-        self.button_start_recording = QPushButton("Start")
-        self.button_start_recording.clicked.connect(self.start_recording)
-
-        self.button_stop_recording = QPushButton("Stop")
-        self.button_stop_recording.clicked.connect(self.stop_recording)
-
         layout_calibration = QHBoxLayout()
         layout_calibration.addWidget(self.button_start_calibration_pupilLabs)
         layout_calibration.addWidget(self.button_start_calibration_lens)
         group_box_calibration = QGroupBox("Calibration")
         group_box_calibration.setLayout(layout_calibration)
 
-        layout_recording = QHBoxLayout()
-        layout_recording.addWidget(self.button_start_recording)
-        layout_recording.addWidget(self.button_stop_recording)
-        group_box_recording = QGroupBox("Recording")
-        group_box_recording.setLayout(layout_recording)
-
         # Create a layout for the common interface
         layout = QVBoxLayout()
         # Add the sub-tab widget to the layout
         layout.addWidget(sub_tabs)
         layout.addWidget(group_box_calibration)
-        layout.addWidget(group_box_recording)
         
 
         # Set the layout for the tab
         self.setLayout(layout)
 
     def start_calibration_pupilLabs(self):
-        text = self.line_edit.text()
-        print(f"Text submitted: {text}")
+        #text = self.line_edit.text()
+        #print(f"Text submitted: {text}")
+        print("test")
 
     def start_calibration_lens(self):
-        text = self.line_edit.text()
-        print(f"Text submitted: {text}")
-
-    def start_recording(self):
-        recorder = Object_recorder('positions.csv')
-        recorder.record_position(10, 20)
-        recorder.record_position(30, 40)
-
-    def stop_recording(self):
-        text = self.line_edit.text()
-        print(f"Text submitted: {text}")
+        #text = self.line_edit.text()
+        #print(f"Text submitted: {text}")
+        print("test")
 
 class UI_saccade(QWidget):
     def __init__(self):
         super().__init__()
-        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.__is_button_start_saccade_on = False
+        self.saccade = Saccade()
 
-        label_object = QLabel("Select object")
-        combo_box_object = QComboBox()
-        combo_box_object.setSizePolicy(size_policy)
-        combo_box_object.setFixedWidth(300)
-        combo_box_object.addItem("Circle")
-        combo_box_object.addItem("Square")
-        combo_box_object.setCurrentIndex(0)
-        layout_object = QHBoxLayout()
-        layout_object.addWidget(label_object)
-        layout_object.addWidget(combo_box_object)
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         label_color = QLabel("Select color")
         combo_box_color = QComboBox()
         combo_box_color.setSizePolicy(size_policy)
         combo_box_color.setFixedWidth(300)
-        combo_box_color.addItem("Red")
-        combo_box_color.addItem("Blue")
+        combo_box_color.addItem("Red", QColor("red"))
+        combo_box_color.addItem("Blue", QColor("blue"))
         combo_box_color.setCurrentIndex(0)
         layout_color = QHBoxLayout()
         layout_color.addWidget(label_color)
@@ -107,17 +81,29 @@ class UI_saccade(QWidget):
         slider_size.setFixedWidth(300)
         slider_size.setMinimum(0)
         slider_size.setMaximum(100)
+        slider_size.setSliderPosition(50)
         layout_size = QHBoxLayout()
         layout_size.addWidget(label_size)
         layout_size.addWidget(slider_size)
+
+        label_time_step = QLabel("Select time step")
+        slider_time_step = QSlider(Qt.Horizontal, self)
+        slider_time_step.setSizePolicy(size_policy)
+        slider_time_step.setFixedWidth(300)
+        slider_time_step.setMinimum(100)
+        slider_time_step.setMaximum(5000)
+        slider_time_step.setSliderPosition(1000)
+        layout_time_step = QHBoxLayout()
+        layout_time_step.addWidget(label_time_step)
+        layout_time_step.addWidget(slider_time_step)
 
         label_delta_horizontal = QLabel("Delta horizontal")
         slider_delta_horizontal = QSlider(Qt.Horizontal, self)
         slider_delta_horizontal.setSizePolicy(size_policy)
         slider_delta_horizontal.setFixedWidth(300)
         slider_delta_horizontal.setMinimum(0)
-        slider_delta_horizontal.setMaximum(100)
-        slider_delta_horizontal.setSliderPosition(50)
+        slider_delta_horizontal.setMaximum(1000)
+        slider_delta_horizontal.setSliderPosition(0)
         layout_delta_horizontal = QHBoxLayout()
         layout_delta_horizontal.addWidget(label_delta_horizontal)
         layout_delta_horizontal.addWidget(slider_delta_horizontal)
@@ -127,53 +113,74 @@ class UI_saccade(QWidget):
         slider_delta_vertical.setSizePolicy(size_policy)
         slider_delta_vertical.setFixedWidth(300)
         slider_delta_vertical.setMinimum(0)
-        slider_delta_vertical.setMaximum(100)
-        slider_delta_vertical.setSliderPosition(50)
+        slider_delta_vertical.setMaximum(1000)
+        slider_delta_vertical.setSliderPosition(200)
         layout_delta_vertical = QHBoxLayout()
         layout_delta_vertical.addWidget(label_delta_vertical)
         layout_delta_vertical.addWidget(slider_delta_vertical)
 
         button_start_exercice_saccade = QPushButton("Start")
-        button_start_exercice_saccade.clicked.connect(self.start_exercice_saccade)
+        button_start_exercice_saccade.clicked.connect(lambda: self.start_exercice_saccade(slider_size.value(), 
+            QColor(combo_box_color.currentData()), 
+            slider_time_step.value(), 
+            slider_delta_horizontal.value(), 
+            slider_delta_vertical.value()
+            ))
+
+        self.button_start_recording = QPushButton("Start")
+        self.button_start_recording.clicked.connect(self.start_recording)
+
+        self.button_stop_recording = QPushButton("Stop")
+        self.button_stop_recording.clicked.connect(self.stop_recording)
+
+        layout_recording = QHBoxLayout()
+        layout_recording.addWidget(self.button_start_recording)
+        layout_recording.addWidget(self.button_stop_recording)
+        group_box_recording = QGroupBox("Recording")
+        group_box_recording.setLayout(layout_recording)
 
         self.layout = QVBoxLayout()
-        self.layout.addLayout(layout_object)
         self.layout.addLayout(layout_color)
         self.layout.addLayout(layout_size)
+        self.layout.addLayout(layout_time_step)
         self.layout.addLayout(layout_delta_horizontal)
         self.layout.addLayout(layout_delta_vertical)
         self.layout.addWidget(button_start_exercice_saccade)
+        self.layout.addWidget(group_box_recording)
 
         self.setLayout(self.layout)
 
-    def start_exercice_saccade(self):
-        #text = self.line_edit.text()
-        #print(f"Text submitted: {text}")
-        print("text")
+    def start_exercice_saccade(self, size, color, time_step, delta_horizontal, delta_vertical):
+        self.saccade.set_is_running(True)
+        self.saccade.set_size(size)
+        self.saccade.set_color(color)
+        self.saccade.set_time_step(time_step) 
+        self.saccade.set_delta_horizontal(delta_horizontal)
+        self.saccade.set_delta_vertical(delta_vertical)
+        
+        screen = QDesktopWidget().screenGeometry(1)
+        self.saccade.setGeometry(screen)
+        self.saccade.showMaximized()
+        self.__is_button_start_saccade_on = True
 
+    def start_recording(self):
+        if self.__is_button_start_saccade_on:
+            self.saccade.is_recording = True
+
+    def stop_recording(self):
+        self.saccade.is_recording = False
 
 class UI_fixation(QWidget):
     def __init__(self):
         super().__init__()
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        label_object = QLabel("Select object")
-        combo_box_object = QComboBox()
-        combo_box_object.setSizePolicy(size_policy)
-        combo_box_object.setFixedWidth(300)
-        combo_box_object.addItem("Circle")
-        combo_box_object.addItem("Square")
-        combo_box_object.setCurrentIndex(0)
-        layout_object = QHBoxLayout()
-        layout_object.addWidget(label_object)
-        layout_object.addWidget(combo_box_object)
-
         label_color = QLabel("Select color")
         combo_box_color = QComboBox()
         combo_box_color.setSizePolicy(size_policy)
         combo_box_color.setFixedWidth(300)
-        combo_box_color.addItem("Red")
-        combo_box_color.addItem("Blue")
+        combo_box_color.addItem("Red", QColor("red"))
+        combo_box_color.addItem("Blue", QColor("blue"))
         combo_box_color.setCurrentIndex(0)
         layout_color = QHBoxLayout()
         layout_color.addWidget(label_color)
@@ -194,8 +201,8 @@ class UI_fixation(QWidget):
         slider_horizontal_position.setSizePolicy(size_policy)
         slider_horizontal_position.setFixedWidth(300)
         slider_horizontal_position.setMinimum(0)
-        slider_horizontal_position.setMaximum(100)
-        slider_horizontal_position.setSliderPosition(50)
+        slider_horizontal_position.setMaximum(1000)
+        slider_horizontal_position.setSliderPosition(0)
         layout_horizontal_position = QHBoxLayout()
         layout_horizontal_position.addWidget(label_horizontal_position)
         layout_horizontal_position.addWidget(slider_horizontal_position)
@@ -205,8 +212,8 @@ class UI_fixation(QWidget):
         slider_vertical_position.setSizePolicy(size_policy)
         slider_vertical_position.setFixedWidth(300)
         slider_vertical_position.setMinimum(0)
-        slider_vertical_position.setMaximum(100)
-        slider_vertical_position.setSliderPosition(50)
+        slider_vertical_position.setMaximum(1000)
+        slider_vertical_position.setSliderPosition(0)
         layout_vertical_position = QHBoxLayout()
         layout_vertical_position.addWidget(label_vertical_position)
         layout_vertical_position.addWidget(slider_vertical_position)
@@ -214,23 +221,49 @@ class UI_fixation(QWidget):
         button_start_exercice_fixation = QPushButton("Start")
         button_start_exercice_fixation.clicked.connect(self.start_exercice_fixation)
 
+        self.button_start_recording = QPushButton("Start")
+        self.button_start_recording.clicked.connect(self.start_recording)
+
+        self.button_stop_recording = QPushButton("Stop")
+        self.button_stop_recording.clicked.connect(self.stop_recording)
+
+        layout_recording = QHBoxLayout()
+        layout_recording.addWidget(self.button_start_recording)
+        layout_recording.addWidget(self.button_stop_recording)
+        group_box_recording = QGroupBox("Recording")
+        group_box_recording.setLayout(layout_recording)
+
         self.layout = QVBoxLayout()
-        self.layout.addLayout(layout_object)
         self.layout.addLayout(layout_color)
         self.layout.addLayout(layout_size)
         self.layout.addLayout(layout_horizontal_position)
         self.layout.addLayout(layout_vertical_position)
         self.layout.addWidget(button_start_exercice_fixation)
+        self.layout.addWidget(group_box_recording)
 
         self.setLayout(self.layout)
 
     def start_exercice_fixation(self):
-        text = self.line_edit.text()
-        print(f"Text submitted: {text}")
+        #text = self.line_edit.text()
+        #print(f"Text submitted: {text}")
+        print("test")
+
+    def start_recording(self):
+        recorder = Object_recorder('positions.csv')
+        recorder.record_position(10, 20)
+        recorder.record_position(30, 40)
+
+    def stop_recording(self):
+        #text = self.line_edit.text()
+        #print(f"Text submitted: {text}")
+        print("test")
 
 class UI_infinite(QWidget):
     def __init__(self):
         super().__init__()
+        self.__is_button_start_infinite_on = False
+        self.infinite = Infinite()
+
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         label_direction = QLabel("Select direction")
@@ -243,17 +276,6 @@ class UI_infinite(QWidget):
         layout_direction = QHBoxLayout()
         layout_direction.addWidget(label_direction)
         layout_direction.addWidget(combo_box_direction)
-
-        label_object = QLabel("Select object")
-        combo_box_object = QComboBox()
-        combo_box_object.setSizePolicy(size_policy)
-        combo_box_object.setFixedWidth(300)
-        combo_box_object.addItem("Circle")
-        combo_box_object.addItem("Square")
-        combo_box_object.setCurrentIndex(0)
-        layout_object = QHBoxLayout()
-        layout_object.addWidget(label_object)
-        layout_object.addWidget(combo_box_object)
 
         label_color = QLabel("Select color")
         combo_box_color = QComboBox()
@@ -319,27 +341,47 @@ class UI_infinite(QWidget):
             slider_vertical_scale.value(),
                 ))
 
+        self.button_start_recording = QPushButton("Start")
+        self.button_start_recording.clicked.connect(self.start_recording)
+
+        self.button_stop_recording = QPushButton("Stop")
+        self.button_stop_recording.clicked.connect(self.stop_recording)
+
+        layout_recording = QHBoxLayout()
+        layout_recording.addWidget(self.button_start_recording)
+        layout_recording.addWidget(self.button_stop_recording)
+        group_box_recording = QGroupBox("Recording")
+        group_box_recording.setLayout(layout_recording)
+
         self.layout = QVBoxLayout()
         self.layout.addLayout(layout_direction)
-        self.layout.addLayout(layout_object)
         self.layout.addLayout(layout_color) 
         self.layout.addLayout(layout_size)
         self.layout.addLayout(layout_speed)
         self.layout.addLayout(layout_horizontal_scale)
         self.layout.addLayout(layout_vertical_scale)
         self.layout.addWidget(button_start_exercice_infini)
+        self.layout.addWidget(group_box_recording)
 
         self.setLayout(self.layout)
 
     def start_exercice_infini(self, speed, size, color, is_vertical, horizontal_scale, vertical_scale):
-        self.infinite = Infinite()
-        self.infinite.object_speed = speed/1000 #the slider only return integer value
-        self.infinite.object_size = size
-        self.infinite.object_color = color
-        self.infinite.object_is_vertical = is_vertical
-        self.infinite.x_scaler_position = horizontal_scale
-        self.infinite.y_scaler_position = vertical_scale
+        self.infinite.set_is_running(True)
+        self.infinite.set_speed(speed/1000) #the slider only return integer value
+        self.infinite.set_size(size)
+        self.infinite.set_color(color)
+        self.infinite.set_is_object_vertical(is_vertical)
+        self.infinite.set_x_scaler(horizontal_scale)
+        self.infinite.set_y_scaler(vertical_scale)
         screen = QDesktopWidget().screenGeometry(1)
         self.infinite.setGeometry(screen)
         self.infinite.showMaximized()
+        self.__is_button_start_infinite_on = True
+
+    def start_recording(self):
+        if self.__is_button_start_infinite_on:
+            self.infinite.is_recording = True
+
+    def stop_recording(self):
+        self.infinite.is_recording = False
 
