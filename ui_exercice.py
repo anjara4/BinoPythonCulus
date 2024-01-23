@@ -7,8 +7,9 @@ from PyQt5.QtGui import QColor
 
 from exercice import Infinite
 from exercice import Saccade
+from exercice import Fixation
 
-from recording import Object_recorder
+from recording import CSV_recorder
 
 class UI_main_excercice(QWidget):
     def __init__(self):
@@ -165,14 +166,21 @@ class UI_saccade(QWidget):
 
     def start_recording(self):
         if self.__is_button_start_saccade_on:
-            self.saccade.is_recording = True
+            csv_recorder = CSV_recorder()
+            csv_recorder.set_filename(csv_recorder.generate_filename("code_patient", "Saccade"))
+
+            self.saccade.set_csv_recorder(csv_recorder)
+            self.saccade.set_is_recording(True)
 
     def stop_recording(self):
-        self.saccade.is_recording = False
+        self.saccade.set_is_recording(False)
 
 class UI_fixation(QWidget):
     def __init__(self):
         super().__init__()
+        self.__is_button_start_infinite_on = True
+        self.fixation = Fixation()
+
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         label_color = QLabel("Select color")
@@ -190,8 +198,8 @@ class UI_fixation(QWidget):
         slider_size = QSlider(Qt.Horizontal, self)
         slider_size.setSizePolicy(size_policy)
         slider_size.setFixedWidth(300)
-        slider_size.setMinimum(0)
-        slider_size.setMaximum(100)
+        slider_size.setMinimum(100)
+        slider_size.setMaximum(1000)
         layout_size = QHBoxLayout()
         layout_size.addWidget(label_size)
         layout_size.addWidget(slider_size)
@@ -219,7 +227,12 @@ class UI_fixation(QWidget):
         layout_vertical_position.addWidget(slider_vertical_position)
 
         button_start_exercice_fixation = QPushButton("Start")
-        button_start_exercice_fixation.clicked.connect(self.start_exercice_fixation)
+        button_start_exercice_fixation.clicked.connect(lambda: self.start_exercice_fixation(
+            QColor(combo_box_color.currentData()),
+            slider_size.value(),
+            slider_horizontal_position.value(),
+            slider_vertical_position.value()
+            ))
 
         self.button_start_recording = QPushButton("Start")
         self.button_start_recording.clicked.connect(self.start_recording)
@@ -243,15 +256,24 @@ class UI_fixation(QWidget):
 
         self.setLayout(self.layout)
 
-    def start_exercice_fixation(self):
-        #text = self.line_edit.text()
-        #print(f"Text submitted: {text}")
-        print("test")
+    def start_exercice_fixation(self, color, size, horizontal_position, vertical_position):
+        self.fixation.set_is_running(True)
+        self.fixation.set_color(color)
+        self.fixation.set_size(size)
+        self.fixation.set_horizontal_position(horizontal_position)
+        self.fixation.set_vertical_position(vertical_position)
+        screen = QDesktopWidget().screenGeometry(1)
+        self.fixation.setGeometry(screen)
+        self.fixation.showMaximized()
+        self.__is_button_start_infinite_on = True
 
     def start_recording(self):
-        recorder = Object_recorder('positions.csv')
-        recorder.record_position(10, 20)
-        recorder.record_position(30, 40)
+        if self.__is_button_start_infinite_on:
+            csv_recorder = CSV_recorder()
+            csv_recorder.set_filename(csv_recorder.generate_filename("code_patient", "Fixation"))
+
+            self.fixation.set_csv_recorder(csv_recorder)
+            self.fixation.set_is_recording(True)
 
     def stop_recording(self):
         #text = self.line_edit.text()
@@ -267,15 +289,15 @@ class UI_infinite(QWidget):
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         label_direction = QLabel("Select direction")
-        combo_box_direction = QComboBox()
-        combo_box_direction.setSizePolicy(size_policy)
-        combo_box_direction.setFixedWidth(300)
-        combo_box_direction.addItem("Vertical")
-        combo_box_direction.addItem("Horizontal")
-        combo_box_direction.setCurrentIndex(0)
+        self.combo_box_direction = QComboBox()
+        self.combo_box_direction.setSizePolicy(size_policy)
+        self.combo_box_direction.setFixedWidth(300)
+        self.combo_box_direction.addItem("Vertical")
+        self.combo_box_direction.addItem("Horizontal")
+        self.combo_box_direction.setCurrentIndex(0)
         layout_direction = QHBoxLayout()
         layout_direction.addWidget(label_direction)
-        layout_direction.addWidget(combo_box_direction)
+        layout_direction.addWidget(self.combo_box_direction)
 
         label_color = QLabel("Select color")
         combo_box_color = QComboBox()
@@ -336,7 +358,7 @@ class UI_infinite(QWidget):
             slider_speed.value(), 
             slider_size.value(), 
             QColor(combo_box_color.currentData()),
-            (combo_box_direction.currentIndex() == 0),#index==0 -> is_vertical=True
+            (self.combo_box_direction.currentIndex() == 0),#index==0 -> is_vertical=True
             slider_horizontal_scale.value(),
             slider_vertical_scale.value(),
                 ))
@@ -378,10 +400,20 @@ class UI_infinite(QWidget):
         self.infinite.showMaximized()
         self.__is_button_start_infinite_on = True
 
+
     def start_recording(self):
         if self.__is_button_start_infinite_on:
-            self.infinite.is_recording = True
+            if (self.combo_box_direction.currentIndex() == 0):#index==0 -> is_vertical=True
+                exercice_name = "InfiniteV"
+            else:
+                exercice_name = "InfiniteH"
+
+            csv_recorder = CSV_recorder()
+            csv_recorder.set_filename(csv_recorder.generate_filename("code_patient", exercice_name))
+
+            self.infinite.set_csv_recorder(csv_recorder)
+            self.infinite.set_is_recording(True)
 
     def stop_recording(self):
-        self.infinite.is_recording = False
+        self.infinite.set_is_recording(False)
 

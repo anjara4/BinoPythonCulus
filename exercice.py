@@ -4,8 +4,6 @@ from PyQt5.QtCore import Qt, QTimer
 import pyautogui
 import math
 
-from recording import Object_recorder
-
 class Saccade(QWidget):
     def __init__(self):
         super().__init__()
@@ -33,8 +31,14 @@ class Saccade(QWidget):
         self.__x = 0
         self.__y = 0
 
-        self.__recorder = Object_recorder('positions.csv')
+        self.__csv_recorder = None
         self.__is_recording = False
+
+    def get_csv_recorder(self):
+        return self.__csv_recorder
+
+    def set_csv_recorder(self, value):
+        self.__csv_recorder = value
 
     def set_time_step(self, value):
         self.__time_step = value
@@ -68,7 +72,7 @@ class Saccade(QWidget):
         self.__color = value
 
     def get_is_recording(self):
-        return self.__recording
+        return self.__is_recording
 
     def set_is_recording(self, value):
         self.__is_recording = value
@@ -102,8 +106,8 @@ class Saccade(QWidget):
             self.__y = y_left_tmp
             self.__is_object_on_left = True
 
-        if self.__is_recording:
-            self.__recorder.record_position(self.__current_time, self.__x, self.__y)
+        if self.get_is_recording():
+            self.__csv_recorder.record(self.__current_time, self.__x, self.__y)
         
         self.__current_time = self.__current_time + self.__time_step
 
@@ -120,7 +124,7 @@ class Fixation(QWidget):
 
         self.__timer = QTimer()
         self.__timer.timeout.connect(self.__update)
-        self.__time_step = 1000
+        self.__time_step = 10
         self.__timer.start(self.__time_step)
 
         self.__delta_time = 0
@@ -137,12 +141,14 @@ class Fixation(QWidget):
         self.__x = 0
         self.__y = 0
 
-        self.__recorder = Object_recorder('positions.csv')
+        self.__csv_recorder = None
         self.__is_recording = False
 
-    def set_time_step(self, value):
-        self.__time_step = value
-        self.timer.setInterval(self.__time_step)
+    def get_csv_recorder(self):
+        return self.__csv_recorder
+
+    def get_csv_recorder(self, value):
+        self.__csv_recorder = value
 
     def get_size(self):
         return self.__size
@@ -163,10 +169,10 @@ class Fixation(QWidget):
         self.__horizontal_position = value
 
     def get_vertical_position(self):
-        return self.__horizontal_position
+        return self.__vertical_position
 
     def set_vertical_position(self, value):
-        self.__horizontal_position = value
+        self.__vertical_position = value
 
     def get_is_running(self):
         return self.__is_running
@@ -174,19 +180,31 @@ class Fixation(QWidget):
     def set_is_running(self, value):
         self.__is_running = value
 
+    def get_is_recording(self):
+        return self.__is_recording
+
+    def set_is_recording(self, value):
+        self.__is_recording = value
+
+    def get_csv_recorder(self):
+        return self.__csv_recorder
+
+    def set_csv_recorder(self, value):
+        self.__csv_recorder = value
+
     def paintEvent(self, event):
-        if get_is_running():
+        if self.get_is_running():
             painter = QPainter(self)
             painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
-            painter.setBrush(QBrush(get_color(), Qt.SolidPattern))
-            painter.drawEllipse(__x, __y, get_size(), get_size())
+            painter.setBrush(QBrush(self.get_color(), Qt.SolidPattern))
+            painter.drawEllipse(self.__x, self.__y, self.get_size(), self.get_size())
 
     def __update(self):
-        __x = self.__display_width / 2 - self.get_horizontal_position()
-        __y = self.__display_hight / 2 - self.get_vertical_position()
+        self.__x = self.__display_width / 2 - self.get_horizontal_position()
+        self.__y = self.__display_height / 2 - self.get_vertical_position()
 
-        if self.__is_recording:
-            self.__recorder.record_position(self.__current_time, self.__x, self.__y)
+        if self.get_is_recording():
+            self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
         
         self.__current_time = self.__current_time + self.__time_step
 
@@ -222,7 +240,7 @@ class Infinite(QWidget):
         self.__y = 0 
         self.__index = 0
 
-        self.__recorder = Object_recorder('positions.csv')
+        self.__csv_recorder = None
         self.__is_recording = False
 
     def set_time_step(self, value):
@@ -271,6 +289,12 @@ class Infinite(QWidget):
     def set_speed(self, value):
         self.__speed = value
 
+    def get_csv_recorder(self):
+        return self.__csv_recorder
+
+    def set_csv_recorder(self, value):
+        self.__csv_recorder = value
+
     def get_is_object_vertical(self):
         return self.__is_object_vertical
 
@@ -304,7 +328,7 @@ class Infinite(QWidget):
             self.__y = self.__y + self.__display_height / 2
 
             if self.get_is_recording():
-                self.recorder.record_position(self.__current_time, self.__x, self.__y)
+                self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
         else:
             self.__x = tmp * self.get_x_scaler()
             self.__x = self.__x + self.__display_width / 2
@@ -312,8 +336,8 @@ class Infinite(QWidget):
             self.__y = cos * (tmp / diviser) * self.get_y_scaler()
             self.__y = self.__y + self.__display_height / 2
 
-            if self.__is_recording:
-                self.__recorder.record_position(self.__current_time, self.__x, self.__y)
+            if self.get_is_recording():
+                self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
         
         self.__current_time = self.__current_time + self.__time_step
 
