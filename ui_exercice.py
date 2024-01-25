@@ -8,7 +8,10 @@ from PyQt5.QtGui import QColor
 from exercice import Infinite
 from exercice import Saccade
 from exercice import Fixation
+
 from ui_customDialog import CustomDialog 
+
+from calibration import Calibration
 
 from recording import CSV_recorder
 from cam_video_world import CameraWorld
@@ -39,6 +42,8 @@ class UI_main_excercice(QWidget):
         group_box_calibration = QGroupBox("Calibration")
         group_box_calibration.setLayout(layout_calibration)
 
+        self.calibration = Calibration()
+
         # Create a layout for the common interface
         layout_exo = QVBoxLayout()
         # Add the sub-tab widget to the layout
@@ -62,9 +67,10 @@ class UI_main_excercice(QWidget):
         print("test")
 
     def start_calibration_lens(self):
-        #text = self.line_edit.text()
-        #print(f"Text submitted: {text}")
-        print("test")
+        screen = QDesktopWidget().screenGeometry(1)
+        self.calibration.set_is_running(True)
+        self.calibration.setGeometry(screen)
+        self.calibration.showMaximized()
 
 class UI_saccade(QWidget):
     def __init__(self, connected_patient):
