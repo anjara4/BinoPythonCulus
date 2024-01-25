@@ -7,7 +7,7 @@ import math
 class Saccade(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Saccade Move")
+        self.setWindowTitle("Saccade")
 
         screen = QDesktopWidget().screenGeometry(1)
         self.__display_width = screen.width() 
@@ -213,7 +213,7 @@ class Fixation(QWidget):
 class Infinite(QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Infinite Move")
+        self.setWindowTitle("Infinite")
 
         screen = QDesktopWidget().screenGeometry(1)
         self.__display_width = screen.width() 

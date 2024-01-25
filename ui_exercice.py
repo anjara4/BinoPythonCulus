@@ -8,18 +8,20 @@ from PyQt5.QtGui import QColor
 from exercice import Infinite
 from exercice import Saccade
 from exercice import Fixation
+from ui_customDialog import CustomDialog 
 
 from recording import CSV_recorder
+from cam_video_world import CameraWorld
 
 class UI_main_excercice(QWidget):
-    def __init__(self):
+    def __init__(self, connected_patient):
         super().__init__()
 
         # Create a sub-tab widget
         sub_tabs = QTabWidget()
-        sub_tab1 = UI_saccade()
-        sub_tab2 = UI_fixation()
-        sub_tab3 = UI_infinite()
+        sub_tab1 = UI_saccade(connected_patient)
+        sub_tab2 = UI_fixation(connected_patient)
+        sub_tab3 = UI_infinite(connected_patient)
         sub_tabs.addTab(sub_tab1, "Saccade")
         sub_tabs.addTab(sub_tab2, "Fixation")
         sub_tabs.addTab(sub_tab3, "Infini")
@@ -38,10 +40,17 @@ class UI_main_excercice(QWidget):
         group_box_calibration.setLayout(layout_calibration)
 
         # Create a layout for the common interface
-        layout = QVBoxLayout()
+        layout_exo = QVBoxLayout()
         # Add the sub-tab widget to the layout
-        layout.addWidget(sub_tabs)
-        layout.addWidget(group_box_calibration)
+        layout_exo.addWidget(sub_tabs)
+        layout_exo.addWidget(group_box_calibration)
+        
+        cam_world = CameraWorld()
+
+        layout = QHBoxLayout()
+        # Add the sub-tab widget to the layout
+        layout.addLayout(layout_exo)
+        layout.addWidget(cam_world)
         
 
         # Set the layout for the tab
@@ -58,10 +67,11 @@ class UI_main_excercice(QWidget):
         print("test")
 
 class UI_saccade(QWidget):
-    def __init__(self):
+    def __init__(self, connected_patient):
         super().__init__()
         self.__is_button_start_saccade_on = False
         self.saccade = Saccade()
+        self.__connected_patient = connected_patient
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -166,20 +176,28 @@ class UI_saccade(QWidget):
 
     def start_recording(self):
         if self.__is_button_start_saccade_on:
-            csv_recorder = CSV_recorder()
-            csv_recorder.set_filename(csv_recorder.generate_filename("code_patient", "Saccade"))
+            if self.__connected_patient.get_codePatient() != "None":
+                csv_recorder = CSV_recorder()
+                csv_recorder.set_filename(csv_recorder.generate_filename(self.__connected_patient.get_codePatient(), "Saccade"))
 
-            self.saccade.set_csv_recorder(csv_recorder)
-            self.saccade.set_is_recording(True)
+                self.saccade.set_csv_recorder(csv_recorder)
+                self.saccade.set_is_recording(True)
+            else:
+                dlg = CustomDialog(message="Connecte to a patient")
+                dlg.exec()
+        else: 
+            dlg = CustomDialog(message="Start fixation first")
+            dlg.exec()
 
     def stop_recording(self):
         self.saccade.set_is_recording(False)
 
 class UI_fixation(QWidget):
-    def __init__(self):
+    def __init__(self, connected_patient):
         super().__init__()
-        self.__is_button_start_infinite_on = True
+        self.__is_button_start_fixation_on = False
         self.fixation = Fixation()
+        self.__connected_patient = connected_patient
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -265,15 +283,22 @@ class UI_fixation(QWidget):
         screen = QDesktopWidget().screenGeometry(1)
         self.fixation.setGeometry(screen)
         self.fixation.showMaximized()
-        self.__is_button_start_infinite_on = True
+        self.__is_button_start_fixation_on = True
 
     def start_recording(self):
-        if self.__is_button_start_infinite_on:
-            csv_recorder = CSV_recorder()
-            csv_recorder.set_filename(csv_recorder.generate_filename("code_patient", "Fixation"))
+        if self.__is_button_start_fixation_on:
+            if self.__connected_patient.get_codePatient() != "None":
+                csv_recorder = CSV_recorder()
+                csv_recorder.set_filename(csv_recorder.generate_filename(self.__connected_patient.get_codePatient(), "Fixation"))
 
-            self.fixation.set_csv_recorder(csv_recorder)
-            self.fixation.set_is_recording(True)
+                self.fixation.set_csv_recorder(csv_recorder)
+                self.fixation.set_is_recording(True)
+            else:
+                dlg = CustomDialog(message="Connecte to a patient")
+                dlg.exec()
+        else: 
+            dlg = CustomDialog(message="Start fixation first")
+            dlg.exec()
 
     def stop_recording(self):
         #text = self.line_edit.text()
@@ -281,10 +306,11 @@ class UI_fixation(QWidget):
         print("test")
 
 class UI_infinite(QWidget):
-    def __init__(self):
+    def __init__(self, connected_patient):
         super().__init__()
         self.__is_button_start_infinite_on = False
         self.infinite = Infinite()
+        self.__connected_patient = connected_patient
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -400,19 +426,25 @@ class UI_infinite(QWidget):
         self.infinite.showMaximized()
         self.__is_button_start_infinite_on = True
 
-
     def start_recording(self):
         if self.__is_button_start_infinite_on:
-            if (self.combo_box_direction.currentIndex() == 0):#index==0 -> is_vertical=True
-                exercice_name = "InfiniteV"
+            if self.__connected_patient.get_codePatient() != "None":
+                if (self.combo_box_direction.currentIndex() == 0):#index==0 -> is_vertical=True
+                    exercice_name = "InfiniteV"
+                else:
+                    exercice_name = "InfiniteH"
+
+                csv_recorder = CSV_recorder()
+                csv_recorder.set_filename(csv_recorder.generate_filename(self.__connected_patient.get_codePatient(), exercice_name))
+
+                self.infinite.set_csv_recorder(csv_recorder)
+                self.infinite.set_is_recording(True)
             else:
-                exercice_name = "InfiniteH"
-
-            csv_recorder = CSV_recorder()
-            csv_recorder.set_filename(csv_recorder.generate_filename("code_patient", exercice_name))
-
-            self.infinite.set_csv_recorder(csv_recorder)
-            self.infinite.set_is_recording(True)
+                dlg = CustomDialog(message="Connecte to a patient")
+                dlg.exec()    
+        else: 
+            dlg = CustomDialog(message="Start infini first")
+            dlg.exec()
 
     def stop_recording(self):
         self.infinite.set_is_recording(False)
