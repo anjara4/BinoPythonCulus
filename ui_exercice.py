@@ -10,11 +10,9 @@ from exercice import Saccade
 from exercice import Fixation
 
 from ui_customDialog import CustomDialog 
-
-from calibration import Calibration
-
 from recording import CSV_recorder
 from cam_video_world import CameraWorld
+from ui_calibration import UI_calibration
 
 class UI_main_excercice(QWidget):
     def __init__(self, connected_patient):
@@ -29,48 +27,20 @@ class UI_main_excercice(QWidget):
         sub_tabs.addTab(sub_tab2, "Fixation")
         sub_tabs.addTab(sub_tab3, "Infini")
 
-        # Create a label and line edit for the common interface
-        self.button_start_calibration_pupilLabs = QPushButton("Pupil")
-        self.button_start_calibration_pupilLabs.clicked.connect(self.start_calibration_pupilLabs)
+        # Create a label and line edit for the common interface for Calibration
+        self.ui_calibration = UI_calibration()
 
-        self.button_start_calibration_lens = QPushButton("Lens")
-        self.button_start_calibration_lens.clicked.connect(self.start_calibration_lens)
-
-        layout_calibration = QHBoxLayout()
-        layout_calibration.addWidget(self.button_start_calibration_pupilLabs)
-        layout_calibration.addWidget(self.button_start_calibration_lens)
-        group_box_calibration = QGroupBox("Calibration")
-        group_box_calibration.setLayout(layout_calibration)
-
-        self.calibration = Calibration()
-
-        # Create a layout for the common interface
         layout_exo = QVBoxLayout()
-        # Add the sub-tab widget to the layout
         layout_exo.addWidget(sub_tabs)
-        layout_exo.addWidget(group_box_calibration)
+        layout_exo.addWidget(self.ui_calibration.group_box_calibration)
         
         cam_world = CameraWorld()
 
         layout = QHBoxLayout()
-        # Add the sub-tab widget to the layout
         layout.addLayout(layout_exo)
         layout.addWidget(cam_world)
         
-
-        # Set the layout for the tab
         self.setLayout(layout)
-
-    def start_calibration_pupilLabs(self):
-        #text = self.line_edit.text()
-        #print(f"Text submitted: {text}")
-        print("test")
-
-    def start_calibration_lens(self):
-        screen = QDesktopWidget().screenGeometry(1)
-        self.calibration.set_is_running(True)
-        self.calibration.setGeometry(screen)
-        self.calibration.showMaximized()
 
 class UI_saccade(QWidget):
     def __init__(self, connected_patient):
