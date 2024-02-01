@@ -10,6 +10,7 @@ from ui_patient import UI_main_patient
 from ui_patient import UI_connected_patient
 from ui_configuration import UI_main_configuration
 from ui_visualisation import UI_main_visualisation
+from ui_configuration import Selected_config
 
 
 class MainWindow(QMainWindow):
@@ -18,12 +19,13 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Binoculus")
 
         connected_patient = UI_connected_patient()
+        selected_config = Selected_config()
 
         # Create a tab widget
         tabs = QTabWidget()
         tab1 = UI_main_patient(connected_patient)
-        tab2 = UI_main_configuration()
-        tab3 = UI_main_excercice(connected_patient)
+        tab2 = UI_main_configuration(selected_config)
+        tab3 = UI_main_excercice(connected_patient, selected_config)
         tab4 = UI_main_visualisation()
         tabs.addTab(tab1, "Patient")
         tabs.addTab(tab2, "Configuration")
@@ -32,6 +34,7 @@ class MainWindow(QMainWindow):
 
         layout_main = QVBoxLayout()
         layout_main.addLayout(connected_patient.layout_logged_in)
+        layout_main.addLayout(selected_config.layout_name_config)
         layout_main.addWidget(tabs)
 
         widget_main = QWidget()

@@ -3,11 +3,15 @@ from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
 from PyQt5.QtCore import Qt, QTimer
 import pyautogui
 import math
+import pandas as pd
+
 
 class Saccade(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Saccade")
+
+        self.__selected_config = None
 
         screen = QDesktopWidget().screenGeometry(1)
         self.__display_width = screen.width() 
@@ -33,6 +37,26 @@ class Saccade(QWidget):
 
         self.__csv_recorder = None
         self.__is_recording = False
+
+    def get_selected_config(self):
+        return self.__selected_config
+
+    def set_selected_config(self, value):
+        self.__selected_config = value
+
+    def get_name_object(self):
+        return self.__selected_config.get_name_config()
+
+    def get_size_object(self):
+        df = pd.read_csv('data_configuration.csv', delimiter=';')
+        index_list = df.loc[df['SizeObject'] == self.get_name_object()].index.tolist()
+        res = 1
+        if index_list:
+            res = index_list[0]
+        return res
+
+    def update_size_object(self):
+        self.__size_object_cm = self.get_size_object()
 
     def get_csv_recorder(self):
         return self.__csv_recorder
@@ -122,6 +146,8 @@ class Fixation(QWidget):
         self.__display_width = screen.width() 
         self.__display_height = screen.height() 
 
+        self.__selected_config = None
+
         self.__timer = QTimer()
         self.__timer.timeout.connect(self.__update)
         self.__time_step = 10
@@ -143,6 +169,26 @@ class Fixation(QWidget):
 
         self.__csv_recorder = None
         self.__is_recording = False
+
+    def get_selected_config(self):
+        return self.__selected_config
+
+    def set_selected_config(self, value):
+        self.__selected_config = value
+
+    def get_name_object(self):
+        return self.__selected_config.get_name_config()
+
+    def get_size_object(self):
+        df = pd.read_csv('data_configuration.csv', delimiter=';')
+        index_list = df.loc[df['SizeObject'] == self.get_name_object()].index.tolist()
+        res = 1
+        if index_list:
+            res = index_list[0]
+        return res
+
+    def update_size_object(self):
+        self.__size_object_cm = self.get_size_object()
 
     def get_csv_recorder(self):
         return self.__csv_recorder
@@ -227,8 +273,8 @@ class Infinite(QWidget):
 
         self.__is_running = False
 
-        self.__x_scaler = 10
-        self.__y_scaler = 10
+        self.__x_scaler = 1
+        self.__y_scaler = 1
         self.__speed = 0.01
         self.__size = 50
         self.__color = Qt.red
@@ -243,9 +289,59 @@ class Infinite(QWidget):
         self.__csv_recorder = None
         self.__is_recording = False
 
+        self.__selected_config = None
+
+        #These following parameters are used to scale the size of the infini object
+        self.__original_width_px = 35 #pixel value of the infini object without scalling
+        self.__original_height_px = 100 #pixel value of the infini object  without scalling
+
+        self.__width_target_infini_object_cm = 10
+        self.__heigth_target_infini_object_cm = 20
+
+        self.__size_screen_calibration_object_px = 500 #This is the size of the object dranw during the screen calibration
+        self.__size_object_cm = 10 #9.4cm is the value of the 500 pix drawn on the screen
+        self.__ratio_pixel_cm = self.__size_screen_calibration_object_px / self.__size_object_cm
+
+        self.__x_scaling = (self.__ratio_pixel_cm * self.__width_target_infini_object_cm) / self.__original_width_px
+        self.__y_scaling = (self.__ratio_pixel_cm * self.__heigth_target_infini_object_cm) / self.__original_height_px
+
+        #self.ellipses = []
+
+    def get_selected_config(self):
+        return self.__selected_config
+
+    def set_selected_config(self, value):
+        self.__selected_config = value
+
+    def get_name_object(self):
+        return self.__selected_config.get_name_config()
+
+    def get_size_object(self):
+        df = pd.read_csv('data_configuration.csv', delimiter=';')
+        index_list = df.loc[df['SizeObject'] == self.get_name_object()].index.tolist()
+        res = 1
+        if index_list:
+            res = index_list[0]
+        return res
+
+    def update_size_object(self):
+        self.__size_object_cm = self.get_size_object()
+
+    def update_x_scaling(self):
+        self.__x_scaling = (self.__ratio_pixel_cm * self.__width_target_infini_object_cm) / self.__original_width_px
+
+    def update_y_scaling(self):
+        self.__y_scaling = (self.__ratio_pixel_cm * self.__heigth_target_infini_object_cm) / self.__original_height_px
+
     def set_time_step(self, value):
         self.__time_step = value
         self.timer.setInterval(self.__time_step)
+
+    def get_screen_calibration_value(self):
+        return self.__screen_calibration_value
+
+    def set_screen_calibration_value(self, value):
+        self.__screen_calibration_value = value
 
     def get_size(self):
         return self.__size
@@ -265,11 +361,17 @@ class Infinite(QWidget):
     def set_is_recording(self, value):
         self.__is_recording = value
 
-    def get_x_scaler(self):
-        return self.__x_scaler
+    def get_width_target_infini_object_cm(self):
+        return self.__width_target_infini_object_cm
 
-    def set_x_scaler(self, value):
-        self.__x_scaler = value
+    def set_width_target_infini_object_cm(self, value):
+        self.__width_target_infini_object_cm = value
+
+    def get_height_target_infini_object_cm(self):
+        return self.__height_target_infini_object_cm
+
+    def set_height_target_infini_object_cm(self, value):
+        self.__height_target_infini_object_cm = value
 
     def get_y_scaler(self):
         return self.__y_scaler
@@ -301,12 +403,17 @@ class Infinite(QWidget):
     def set_is_object_vertical(self, value):
         self.__is_object_vertical = value
 
+    def cm2pix(self, distance_cm, size_object_px):
+        return distance_cm * size_object_px 
+
     def paintEvent(self, event):
         if self.get_is_running():
             painter = QPainter(self)
             painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
             painter.setBrush(QBrush(self.get_color(), Qt.SolidPattern))
             painter.drawEllipse(self.__x, self.__y, self.get_size(), self.get_size())
+            #for x, y in self.ellipses:
+            #    painter.drawEllipse(x, y, self.get_size(), self.get_size())
 
     def __update(self):
         diviser = math.pow(2, self.__index / 2)
@@ -321,16 +428,18 @@ class Infinite(QWidget):
         tmp = self.get_size() * sin / (1 + cos * cos)
 
         if self.get_is_object_vertical():
-            self.__x = cos * (tmp / diviser) * self.get_x_scaler()
+            self.__x = cos * (tmp / diviser) * self.__x_scaling #* self.scale_x #self.get_x_scaler()  
             self.__x = self.__x + self.__display_width / 2
 
-            self.__y = tmp * self.get_y_scaler()
+            self.__y = tmp * self.__y_scaling #* self.get_y_scaler()
             self.__y = self.__y + self.__display_height / 2
+
+            #self.ellipses.append((self.__x, self.__y))
 
             if self.get_is_recording():
                 self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
         else:
-            self.__x = tmp * self.get_x_scaler()
+            self.__x = tmp * self.scale_x #self.get_x_scaler()
             self.__x = self.__x + self.__display_width / 2
 
             self.__y = cos * (tmp / diviser) * self.get_y_scaler()

@@ -5,12 +5,18 @@ from PyQt5.QtWidgets import QDateEdit, QComboBox, QLabel, QLineEdit, QSlider, QP
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 
+from PyQt5.QtCore import QDir
+from PyQt5.QtWidgets import QFileSystemModel
+
 import csv
 import sys
+import glob
+import os
 
 from ui_exercice import UI_infinite
 from ui_exercice import UI_fixation
 from ui_exercice import UI_saccade
+
 from ui_customDialog import CustomDialog 
 
 from recording import CSV_recorder
@@ -18,6 +24,27 @@ from recording import CSV_recorder
 from datetime import datetime
 
 import pandas as pd
+
+class UI_main_patient(QWidget):
+    def __init__(self, connected_patient):
+        super().__init__()
+        self.sub_tabs = QTabWidget()
+        self.sub_tab1 = Creation()
+        self.sub_tab2 = Connexion(connected_patient)
+        self.sub_tab3 = Data()
+        self.sub_tabs.addTab(self.sub_tab1, "Creation")
+        self.sub_tabs.addTab(self.sub_tab2, "Connexion")
+        #self.sub_tabs.addTab(self.sub_tab3, "Data")
+
+        self.sub_tabs.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.sub_tabs.setFixedWidth(600)
+        
+        layout = QHBoxLayout()
+        layout.addStretch(1)
+        layout.addWidget(self.sub_tabs)
+        layout.addStretch(1)
+
+        self.setLayout(layout)
 
 class UI_connected_patient(QWidget):
     def __init__(self):
@@ -36,27 +63,6 @@ class UI_connected_patient(QWidget):
 
     def get_codePatient(self):
         return self.__codePatient
-
-class UI_main_patient(QWidget):
-    def __init__(self, connected_patient):
-        super().__init__()
-        self.sub_tabs = QTabWidget()
-        self.sub_tab1 = Creation()
-        self.sub_tab2 = Connexion(connected_patient)
-        self.sub_tab3 = Data()
-        self.sub_tabs.addTab(self.sub_tab1, "Creation")
-        self.sub_tabs.addTab(self.sub_tab2, "Connexion")
-        self.sub_tabs.addTab(self.sub_tab3, "Data")
-
-        self.sub_tabs.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        self.sub_tabs.setFixedWidth(500)
-        
-        layout = QHBoxLayout()
-        layout.addStretch(1)
-        layout.addWidget(self.sub_tabs)
-        layout.addStretch(1)
-
-        self.setLayout(layout)
 
 class Creation(QWidget):
     def __init__(self):
@@ -143,6 +149,8 @@ class Creation(QWidget):
             self.date_edit_date_of_birth.text(), 
             self.line_edit_code_patient.text(),
             datetime.now().strftime('%d-%m-%Y'))
+        dlg = CustomDialog(message="Patient saved in data_patient.csv")
+        dlg.exec()
 
 class Connexion(QWidget):
     def __init__(self, connected_patient):
@@ -222,9 +230,72 @@ class Connexion(QWidget):
             dlg = CustomDialog(message="Select a row before deleting")
             dlg.exec()
 
+class CsvTableModel(QStandardItemModel):
+    def __init__(self, data, parent=None):
+        QStandardItemModel.__init__(self, parent)
+        for line in data:
+            self.appendRow([QStandardItem(item) for item in line])
+
 class Data(QWidget):
     def __init__(self):
         super().__init__()
+
+        size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        self.label_filter = QLabel("Select a filter")
+        
+        self.combo_box_filter = QComboBox()
+        self.combo_box_filter.setSizePolicy(size_policy)
+        self.combo_box_filter.setFixedWidth(300)
+        self.combo_box_filter.addItem("All", 0)
+        self.combo_box_filter.addItem("Target", 1)
+        self.load_patient_data()
+        self.combo_box_filter.setCurrentIndex(0)
+        
+        self.button_apply_filter = QPushButton("Apply")
+        dir_path = '.'
+        self.button_apply_filter.clicked.connect(lambda: self.apply_filter(dir_path))
+
+        layout_filter = QHBoxLayout()
+        layout_filter.addWidget(self.label_filter)
+        layout_filter.addWidget(self.combo_box_filter)
+        layout_filter.addWidget(self.button_apply_filter)
+
+        self.table = QTableView()
+
+        #self.table.resizeRowsToContents()
+        self.table.resizeColumnsToContents()
+
+        layout = QVBoxLayout()
+        layout.addLayout(layout_filter)
+        layout.addWidget(self.table)        
+
+        self.apply_filter(dir_path)
+
+        self.setLayout(layout)
+
+    def load_patient_data(self):
+        with open('data_patient.csv', 'r') as f:
+            reader = csv.reader(f, delimiter=';')
+            next(reader)
+            for row in reader:
+                self.combo_box_filter.addItem(row[4])
+
+    def apply_filter(self, dir_path):
+        #files = glob.glob(os.path.join(dir_path, '*.csv')) #'*MaSu*.csv'
+        #model = CsvTableModel(files)
+
+        model = self.get_model_data('*')
+        self.table.setModel(model)
+        self.table.setRootIndex(model.index(dir_path))
+
+    def get_model_data(self, select):
+        model = QFileSystemModel()
+        model.setRootPath(QDir.rootPath())
+        model.setNameFilters([select + '.csv'])
+        model.setNameFilterDisables(False)
+        return model
+
 
         
 
