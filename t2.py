@@ -1,25 +1,38 @@
-import pandas as pd
-import matplotlib.pyplot as plt
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QRadioButton, QLabel, QVBoxLayout
+from PyQt5.QtCore import Qt
 
-# Read the CSV data
-#data = pd.read_csv('BoMa99_30-01-2024_09-56_InfiniteV_Target.csv', sep=";")
-data = pd.read_csv('AlDu00_30-01-2024_10-10_InfiniteH_Target.csv', sep=";")
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("PyQt Radio Buttons")
+        self.setMinimumWidth(300)
 
+        layout = QVBoxLayout(self)
 
-print("min x: " + str(data['x'].min()))
-print("max x: " + str(data['x'].max()))
-print("max - min: " + str(data['x'].max() - data['x'].min()))
+        label = QLabel("Please select an option:", self)
 
-print("min y: " + str(data['y'].min()))
-print("max y: " + str(data['y'].max()))
-print("max - min: " + str(data['y'].max() - data['y'].min()))
+        rb_true = QRadioButton("True", self)
+        rb_true.toggled.connect(self.update_label)
 
-# Plot the data
-plt.figure(figsize=(10, 6))
-plt.plot(data['x'], data['y'])
-plt.plot(data['x'] * 13, data['y'])
-plt.title('Title of Your Plot')
-plt.xlabel('X-Axis Label')
-plt.ylabel('Y-Axis Label')
-plt.grid(True)
-plt.show()
+        rb_false = QRadioButton("False", self)
+        rb_false.toggled.connect(self.update_label)
+
+        self.result_label = QLabel("", self)
+
+        layout.addWidget(label)
+        layout.addWidget(rb_true)
+        layout.addWidget(rb_false)
+        layout.addWidget(self.result_label)
+
+        self.show()
+
+    def update_label(self):
+        rb = self.sender()
+        if rb.isChecked():
+            self.result_label.setText(f"You selected {rb.text()}")
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    sys.exit(app.exec_())

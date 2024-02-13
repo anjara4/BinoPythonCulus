@@ -29,8 +29,8 @@ class MainWindow(QMainWindow):
         tab4 = UI_main_visualisation()
         tabs.addTab(tab1, "Patient")
         tabs.addTab(tab2, "Configuration")
-        tabs.addTab(tab3, "Exercice")
-        tabs.addTab(tab4, "Visualisation")
+        tabs.addTab(tab3, "Exercise")
+        tabs.addTab(tab4, "Visualization")
 
         layout_main = QVBoxLayout()
         layout_main.addLayout(connected_patient.layout_logged_in)

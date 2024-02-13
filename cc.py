@@ -1,20 +1,20 @@
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-import matplotlib.pyplot as plt
+import subprocess
 
-# Assuming 'data.csv' is your data file
-data = pd.read_csv('AlDu00_26-01-2024_13-40_InfiniteV_Target.csv', sep=';')
+df = pd.read_csv('data_configuration.csv', delimiter=';')
 
-# Create a linear regression model
-model = LinearRegression()
+# Filter rows where NameConf is "conf1"
+filtered_df = df[df['NameConf'] == 'conf1']
 
-# Fit the model to your data
-model.fit(data[['time']], data['x'])
+# Extract the PathPupilLabs column values (without index)
+path_pupil_labs = filtered_df['PathPupilLabs'].values.item()
 
-# Now you can use the fitted model to predict 'x' based on 'time'
-predicted_x = model.predict(data[['time']])
+# Print the result
+print(path_pupil_labs)
 
-# Plot actual vs predicted data
-plt.scatter(data['time'], data['x'], color='blue')
-plt.plot(data['time'], predicted_x, color='red')
-plt.show()
+
+try:
+    subprocess.Popen([path_pupil_labs])
+    print(f"Pupil capture launched from path: {path_pupil_labs}")
+except FileNotFoundError:
+    print("Invalid path to Pupil Labs executable")

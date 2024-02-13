@@ -28,10 +28,10 @@ class Calibration(QWidget):
         
         self.__position = [
             Point(self.__display_width/2 - self.__size/2, self.__display_height/2 - self.__size/2),  # Center
-            Point(self.__display_width - self.__size/2, self.__size/2),  # Top-right corner
+            Point(self.__display_width - self.__size, 0),  # Top-right corner
             Point(self.__display_width - self.__size, self.__display_height - self.__size),  # Bottom-right corner
-            Point(self.__size/2, self.__display_height - self.__size),  # Bottom-left corner
-            Point(self.__size/2, self.__size)  # Top-left corner
+            Point(0, self.__display_height - self.__size),  # Bottom-left corner
+            Point(0, 0)  # Top-left corner
 ]
 
     def paintEvent(self, event):

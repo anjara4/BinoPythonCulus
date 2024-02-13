@@ -1,1 +1,0 @@
-uvc uvc-0.14-cp36-cp36m-win_amd64.whl

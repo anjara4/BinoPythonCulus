@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt, QTimer
 import pyautogui
 import math
 import pandas as pd
+import csv
 
 
 class Saccade(QWidget):
@@ -26,37 +27,43 @@ class Saccade(QWidget):
         self.__current_time = self.__delta_time
 
         self.__is_running = False
+        self.__nb_cycle = -1
+        self.__cpt_cycle = 0
 
         self.__size = 50
         self.__color = Qt.red
         self.__delta_horizontal = 50
         self.__delta_vertical = 50
         self.__is_object_on_left = False
-        self.__x = 0
-        self.__y = 0
+
+        self.__size_object_cm = 1
+        self.__ratio_pixel_cm = 1
+        
+        self.__x = self.__display_width / 2 + self.get_delta_horizontal()
+        self.__y = self.__display_height / 2 + self.get_delta_vertical()
 
         self.__csv_recorder = None
         self.__is_recording = False
 
-    def get_selected_config(self):
-        return self.__selected_config
+    def scale_delta_horizontal(self):
+        self.__delta_horizontal = self.__delta_horizontal * self.__ratio_pixel_cm 
+
+    def scale_delta_vertical(self):
+        self.__delta_vertical = self.__delta_vertical * self.__ratio_pixel_cm
+
+    def scale_size(self):
+        self.__size = self.__size * self.__ratio_pixel_cm
+
+    def set_ratio_pixel_cm(self):
+        self.__ratio_pixel_cm = 500 / self.get_size_object()
 
     def set_selected_config(self, value):
         self.__selected_config = value
 
-    def get_name_object(self):
-        return self.__selected_config.get_name_config()
-
     def get_size_object(self):
         df = pd.read_csv('data_configuration.csv', delimiter=';')
-        index_list = df.loc[df['SizeObject'] == self.get_name_object()].index.tolist()
-        res = 1
-        if index_list:
-            res = index_list[0]
-        return res
-
-    def update_size_object(self):
-        self.__size_object_cm = self.get_size_object()
+        filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
+        return filtered_df['SizeObject'].values.item()
 
     def get_csv_recorder(self):
         return self.__csv_recorder
@@ -73,21 +80,21 @@ class Saccade(QWidget):
 
     def set_delta_horizontal(self, value):
         self.__delta_horizontal = value
+        self.scale_delta_horizontal()
 
     def get_delta_vertical(self):
-        return self.__delta_horizontal
+        return self.__delta_vertical
 
     def set_delta_vertical(self, value):
         self.__delta_vertical = value
-
-    def get_delta_horizontal(self):
-        return self.__delta_vertical
+        self.scale_delta_vertical()
 
     def get_size(self):
         return self.__size
 
     def set_size(self, value):
         self.__size = value
+        self.scale_size()
 
     def get_color(self):
         return self.__color
@@ -107,8 +114,14 @@ class Saccade(QWidget):
     def set_is_running(self, value):
         self.__is_running = value
 
+    def get_nb_cycle(self):
+        return self.__nb_cycle
+
+    def set_nb_cycle(self, value):
+        self.__nb_cycle = value
+
     def paintEvent(self, event):
-        if self.get_is_running():
+        if self.__is_running:
             painter = QPainter(self)
             painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
             painter.setBrush(QBrush(self.get_color(), Qt.SolidPattern))
@@ -121,14 +134,20 @@ class Saccade(QWidget):
         x_right_tmp = self.__display_width / 2 + self.get_delta_horizontal()
         y_right_tmp = self.__display_height / 2 + self.get_delta_vertical()
 
-        if self.__is_object_on_left:
-            self.__x = x_right_tmp
-            self.__y = y_right_tmp
-            self.__is_object_on_left = False
+        if self.__nb_cycle > self.__cpt_cycle: 
+            if self.__is_object_on_left:
+                self.__x = x_right_tmp
+                self.__y = y_right_tmp
+                self.__is_object_on_left = False
+            else:
+                self.__x = x_left_tmp
+                self.__y = y_left_tmp
+                self.__is_object_on_left = True
+
+            self.__cpt_cycle = self.__cpt_cycle + 1
         else:
-            self.__x = x_left_tmp
-            self.__y = y_left_tmp
-            self.__is_object_on_left = True
+            self.__is_running = False
+            self.close()
 
         if self.get_is_recording():
             self.__csv_recorder.record(self.__current_time, self.__x, self.__y)
@@ -150,7 +169,7 @@ class Fixation(QWidget):
 
         self.__timer = QTimer()
         self.__timer.timeout.connect(self.__update)
-        self.__time_step = 10
+        self.__time_step = 0.01
         self.__timer.start(self.__time_step)
 
         self.__delta_time = 0
@@ -158,14 +177,19 @@ class Fixation(QWidget):
 
         self.__is_running = False
 
+        self.__time_exo = False
+
         self.__size = 50
         self.__color = Qt.red
 
         self.__horizontal_position = 0
         self.__vertical_position = 0
 
-        self.__x = 0
-        self.__y = 0
+        self.__size_object_cm = 1
+        self.__ratio_pixel_cm = 1
+
+        self.__x = self.__display_width / 2 
+        self.__y = self.__display_height / 2 
 
         self.__csv_recorder = None
         self.__is_recording = False
@@ -176,18 +200,24 @@ class Fixation(QWidget):
     def set_selected_config(self, value):
         self.__selected_config = value
 
-    def get_name_object(self):
-        return self.__selected_config.get_name_config()
-
     def get_size_object(self):
         df = pd.read_csv('data_configuration.csv', delimiter=';')
-        index_list = df.loc[df['SizeObject'] == self.get_name_object()].index.tolist()
-        res = 1
-        if index_list:
-            res = index_list[0]
-        return res
+        filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
+        return filtered_df['SizeObject'].values.item()
 
-    def update_size_object(self):
+    def scale_size(self):
+        self.__size = self.__size * self.__ratio_pixel_cm
+
+    def scale_horizontal_position(self):
+        self.__horizontal_position = self.__horizontal_position  * -self.__ratio_pixel_cm 
+
+    def scale_vertical_position(self):
+        self.__vertical_position = self.__vertical_position  * self.__ratio_pixel_cm
+
+    def set_ratio_pixel_cm(self):
+        self.__ratio_pixel_cm = 500 / self.get_size_object()
+
+    def update_size_object_cm(self):
         self.__size_object_cm = self.get_size_object()
 
     def get_csv_recorder(self):
@@ -201,6 +231,13 @@ class Fixation(QWidget):
 
     def set_size(self, value):
         self.__size = value
+        self.scale_size()
+
+    def get_time_exo(self):
+        return self.__time_exo
+
+    def set_time_exo(self, value):
+        self.__time_exo = value
 
     def get_color(self):
         return self.__color
@@ -213,12 +250,14 @@ class Fixation(QWidget):
 
     def set_horizontal_position(self, value):
         self.__horizontal_position = value
+        self.scale_horizontal_position()
 
     def get_vertical_position(self):
         return self.__vertical_position
 
     def set_vertical_position(self, value):
         self.__vertical_position = value
+        self.scale_vertical_position()
 
     def get_is_running(self):
         return self.__is_running
@@ -246,14 +285,16 @@ class Fixation(QWidget):
             painter.drawEllipse(self.__x, self.__y, self.get_size(), self.get_size())
 
     def __update(self):
-        self.__x = self.__display_width / 2 - self.get_horizontal_position()
-        self.__y = self.__display_height / 2 - self.get_vertical_position()
+        if self.__current_time < self.__time_exo:
+            self.__x = self.__display_width / 2 - self.get_horizontal_position()
+            self.__y = self.__display_height / 2 - self.get_vertical_position()
 
-        if self.get_is_recording():
-            self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
-        
-        self.__current_time = self.__current_time + self.__time_step
-
+            if self.get_is_recording():
+                self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
+            
+            self.__current_time = self.__current_time + self.__time_step
+        else:
+            self.close()
         self.update()
 
 class Infinite(QWidget):
@@ -273,8 +314,6 @@ class Infinite(QWidget):
 
         self.__is_running = False
 
-        self.__x_scaler = 1
-        self.__y_scaler = 1
         self.__speed = 0.01
         self.__size = 50
         self.__color = Qt.red
@@ -282,8 +321,8 @@ class Infinite(QWidget):
 
         self.__averageAngleSpeed = 0
         self.__currentAngle = 0
-        self.__x = 0 
-        self.__y = 0 
+        self.__x = self.__display_width / 2 
+        self.__y = self.__display_height / 2
         self.__index = 0
 
         self.__csv_recorder = None
@@ -291,7 +330,11 @@ class Infinite(QWidget):
 
         self.__selected_config = None
 
+        self.__nb_cycle = 5
+        self.__cpt_cycle = 0
+
         #These following parameters are used to scale the size of the infini object
+
         self.__original_width_px = 35 #pixel value of the infini object without scalling
         self.__original_height_px = 100 #pixel value of the infini object  without scalling
 
@@ -307,8 +350,13 @@ class Infinite(QWidget):
 
         #self.ellipses = []
 
-    def get_selected_config(self):
-        return self.__selected_config
+    def update_original_width_height_px(self):
+        if self.__is_object_vertical:
+            self.__original_width_px = 35
+            self.__original_height_px = 100
+        else:
+            self.__original_width_px = 100
+            self.__original_height_px = 35
 
     def set_selected_config(self, value):
         self.__selected_config = value
@@ -318,13 +366,13 @@ class Infinite(QWidget):
 
     def get_size_object(self):
         df = pd.read_csv('data_configuration.csv', delimiter=';')
-        index_list = df.loc[df['SizeObject'] == self.get_name_object()].index.tolist()
-        res = 1
-        if index_list:
-            res = index_list[0]
-        return res
+        filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
+        return filtered_df['SizeObject'].values.item()
 
-    def update_size_object(self):
+    def scale_size(self):
+        self.__size = self.__size * self.__ratio_pixel_cm
+
+    def update_size_object_cm(self):
         self.__size_object_cm = self.get_size_object()
 
     def update_x_scaling(self):
@@ -348,6 +396,7 @@ class Infinite(QWidget):
 
     def set_size(self, value):
         self.__size = value
+        self.scale_size()
 
     def get_is_running(self):
         return self.__is_running
@@ -403,8 +452,21 @@ class Infinite(QWidget):
     def set_is_object_vertical(self, value):
         self.__is_object_vertical = value
 
-    def cm2pix(self, distance_cm, size_object_px):
-        return distance_cm * size_object_px 
+    def get_nb_cycle(self):
+        return self.__nb_cycle
+
+    def set_nb_cycle(self, value):
+        self.__nb_cycle = value
+
+    def init_scenario(self):
+        self.update_original_width_height_px()
+        self.update_size_object_cm()
+        self.update_x_scaling()
+        self.update_y_scaling()
+        self.__averageAngleSpeed = 0
+        self.__currentAngle = 0
+        self.__x = self.__display_width / 2 
+        self.__y = self.__display_height / 2
 
     def paintEvent(self, event):
         if self.get_is_running():
@@ -416,38 +478,46 @@ class Infinite(QWidget):
             #    painter.drawEllipse(x, y, self.get_size(), self.get_size())
 
     def __update(self):
-        diviser = math.pow(2, self.__index / 2)
-        self.__averageAngleSpeed = 2 * math.pi * self.get_speed() / (5.24412 * self.get_size())
-        self.__averageAngleSpeed = self.__averageAngleSpeed * (5.24412 / (1.24412 / diviser + 4))#// prendre en compte approximativement le scale.
+        if self.get_is_running():
+            diviser = math.pow(2, self.__index / 2)
+            self.__averageAngleSpeed = 2 * math.pi * self.get_speed() / (5.24412 * self.get_size())
+            self.__averageAngleSpeed = self.__averageAngleSpeed * (5.24412 / (1.24412 / diviser + 4))#// prendre en compte approximativement le scale.
 
-        delta = self.__time_step * self.__averageAngleSpeed
-        self.__currentAngle = self.__currentAngle + delta
+            delta = self.__time_step * self.__averageAngleSpeed
+            self.__currentAngle = self.__currentAngle + delta
 
-        sin = math.sin(self.__currentAngle)
-        cos = math.cos(self.__currentAngle)
-        tmp = self.get_size() * sin / (1 + cos * cos)
+            sin = math.sin(self.__currentAngle)
+            cos = math.cos(self.__currentAngle)
+            tmp = self.get_size() * sin / (1 + cos * cos)
 
-        if self.get_is_object_vertical():
-            self.__x = cos * (tmp / diviser) * self.__x_scaling #* self.scale_x #self.get_x_scaler()  
-            self.__x = self.__x + self.__display_width / 2
+            if self.get_is_object_vertical():
+                self.__x = cos * (tmp / diviser) * self.__x_scaling 
+                self.__x = self.__x + self.__display_width / 2
 
-            self.__y = tmp * self.__y_scaling #* self.get_y_scaler()
-            self.__y = self.__y + self.__display_height / 2
+                self.__y = tmp * self.__y_scaling 
+                self.__y = self.__y + self.__display_height / 2
 
-            #self.ellipses.append((self.__x, self.__y))
+                #self.ellipses.append((self.__x, self.__y))
 
-            if self.get_is_recording():
-                self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
-        else:
-            self.__x = tmp * self.scale_x #self.get_x_scaler()
-            self.__x = self.__x + self.__display_width / 2
+                if abs(sin) < 0.009:#The threshold 0.009 is selected based on the sin data recorded 
+                    if 5 * self.__nb_cycle + 5 >= self.__cpt_cycle:
+                        self.__cpt_cycle = self.__cpt_cycle + 1
+                    else:
+                        self.__is_running = False
+                        self.close()
 
-            self.__y = cos * (tmp / diviser) * self.get_y_scaler()
-            self.__y = self.__y + self.__display_height / 2
+                if self.get_is_recording():
+                    self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
+            else:
+                self.__x = tmp * self.__x_scaling 
+                self.__x = self.__x + self.__display_width / 2
 
-            if self.get_is_recording():
-                self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
-        
-        self.__current_time = self.__current_time + self.__time_step
+                self.__y = cos * (tmp / diviser) * self.__y_scaling
+                self.__y = self.__y + self.__display_height / 2
+
+                if self.get_is_recording():
+                    self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
+            
+            self.__current_time = self.__current_time + self.__time_step
 
         self.update()

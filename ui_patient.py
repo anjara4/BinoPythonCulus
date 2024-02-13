@@ -69,7 +69,7 @@ class Creation(QWidget):
         super().__init__()
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.label_first_name = QLabel("Enter first name")
+        self.label_first_name = QLabel("*Enter first name")
         self.line_edit_first_name = QLineEdit()
         self.line_edit_first_name.textChanged.connect(self.generate_code_patient)
         self.line_edit_first_name.setSizePolicy(size_policy)
@@ -78,7 +78,7 @@ class Creation(QWidget):
         layout_first_name.addWidget(self.label_first_name)
         layout_first_name.addWidget(self.line_edit_first_name)
 
-        self.label_name = QLabel("Enter name")
+        self.label_name = QLabel("*Enter name")
         self.line_edit_name = QLineEdit()
         self.line_edit_name.textChanged.connect(self.generate_code_patient)
         self.line_edit_name.setSizePolicy(size_policy)
@@ -87,7 +87,7 @@ class Creation(QWidget):
         layout_name.addWidget(self.label_name)
         layout_name.addWidget(self.line_edit_name)
 
-        self.label_date_of_birth = QLabel("Select date of birth")
+        self.label_date_of_birth = QLabel("*Select date of birth")
         self.date_edit_date_of_birth = QDateEdit()
         self.date_edit_date_of_birth.dateChanged.connect(self.generate_code_patient)
         self.date_edit_date_of_birth.setSizePolicy(size_policy)
@@ -98,7 +98,7 @@ class Creation(QWidget):
         layout_date_of_birth.addWidget(self.label_date_of_birth)
         layout_date_of_birth.addWidget(self.date_edit_date_of_birth)
 
-        self.label_sex = QLabel("Select sex")
+        self.label_sex = QLabel("*Select sex")
         self.combo_box_sex = QComboBox()
         self.combo_box_sex.setSizePolicy(size_policy)
         self.combo_box_sex.setFixedWidth(300)
@@ -139,18 +139,27 @@ class Creation(QWidget):
             self.line_edit_name.text()[:2] + 
             self.date_edit_date_of_birth.text()[-2:]
             )
+    def save_patient_validator(self):
+        if self.line_edit_first_name.text() and self.line_edit_name.text() and  self.line_edit_code_patient.text():
+            return True
+        else:
+            return False
 
     def save_patient(self):
-        csv_recorder = CSV_recorder()
-        csv_recorder.save_patient("data_patient.csv", 
-            self.line_edit_first_name.text(), 
-            self.line_edit_name.text(), 
-            self.combo_box_sex.currentText(),
-            self.date_edit_date_of_birth.text(), 
-            self.line_edit_code_patient.text(),
-            datetime.now().strftime('%d-%m-%Y'))
-        dlg = CustomDialog(message="Patient saved in data_patient.csv")
-        dlg.exec()
+        if self.save_patient_validator():
+            csv_recorder = CSV_recorder()
+            csv_recorder.save_patient("data_patient.csv", 
+                self.line_edit_first_name.text(), 
+                self.line_edit_name.text(), 
+                self.combo_box_sex.currentText(),
+                self.date_edit_date_of_birth.text(), 
+                self.line_edit_code_patient.text(),
+                datetime.now().strftime('%d-%m-%Y'))
+            dlg = CustomDialog(message="Patient saved in data_patient.csv")
+            dlg.exec()
+        else:
+            dlg = CustomDialog(message="All the information are mandatory")
+            dlg.exec()
 
 class Connexion(QWidget):
     def __init__(self, connected_patient):
