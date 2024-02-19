@@ -4,20 +4,16 @@ from PyQt5.QtWidgets import QSizePolicy, QComboBox, QLabel, QLineEdit, QSlider, 
 from PyQt5.QtCore import Qt
 
 from calibration import Calibration
+from pupilLabs import PupilLabs
 
 from ui_customDialog import CustomDialog 
 
-import subprocess
-
-import pandas as pd
-
-import zmq
 
 class UI_calibration(QWidget):
     def __init__(self, selected_config):
         super().__init__()
         
-        self.__pupilLabs_status = None
+        self.__pupilLabs = PupilLabs(selected_config)
 
         self.__selected_config = selected_config
 
@@ -65,32 +61,11 @@ class UI_calibration(QWidget):
         self.layout_calibration.addLayout(layout_size)
         self.layout_calibration.addLayout(layout_button_calibration)
 
-    def get_pupilLabs_status(self):
-        return self.__pupilLabs_status 
+    def get_pupilLabs(self):
+        return self.__pupilLabs
 
     def start_pupilLabs(self):
-        if self.__selected_config.get_name_config() != "None":
-            if self.__pupilLabs_status is None or self.__pupilLabs_status.poll() is not None:
-                try:
-                    self.__pupilLabs_status = subprocess.Popen([self.get_path_pupilLabs()])
-                    dlg = CustomDialog(message="Pupil capture launched, it might tike a few seconds")
-                    dlg.exec()
-                except FileNotFoundError:
-                    dlg = CustomDialog(message="Invalid path to PupilLabs executable")
-                    dlg.exec()
-            else:
-                dlg = CustomDialog(message="Pupil capture already running")
-                dlg.exec()
-        else:
-            dlg = CustomDialog(message="Select a config")
-            dlg.exec()
-
-    def get_path_pupilLabs(self):
-        df = pd.read_csv('data_configuration.csv', delimiter=';')
-        
-        filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
-
-        return filtered_df['PathPupilLabs'].values.item()
+        self.__pupilLabs.start_pupilLabs()
 
     def start_lens(self):
         #text = self.line_edit.text()
@@ -101,19 +76,7 @@ class UI_calibration(QWidget):
         self.label_slider_size_value.setText(str(self.slider_size.value()))
 
     def start_calibration_pupilLabs(self):
-        if self.__pupilLabs_status == None:
-            dlg = CustomDialog(message="PupilLab application not detected")
-            dlg.exec() 
-        elif self.__pupilLabs_status.poll() is None:
-            ctx = zmq.Context()
-            pupil_remote = zmq.Socket(ctx, zmq.REQ)
-            pupil_remote.connect('tcp://127.0.0.1:50020')
-
-            pupil_remote.send_string('C')
-            print(pupil_remote.recv_string())
-        else:
-            dlg = CustomDialog(message="Start pupil capture")
-            dlg.exec()
+        self.__pupilLabs.start_calibration_pupilLabs()
 
     def start_calibration_lens(self):
         screen = QDesktopWidget().screenGeometry(1)

@@ -13,11 +13,6 @@ from PyQt5.QtCore import Qt
 
 from ui_customDialog import CustomDialog 
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
 class MplCanvas(FigureCanvasQTAgg):
     def __init__(self, parent=None, width=5, height=4, dpi=100):
         fig = Figure(figsize=(width, height), dpi=dpi)
@@ -65,7 +60,7 @@ class UI_main_visualisation(QtWidgets.QWidget):
             self.sc.axes.clear()
             try:
                 data = self.ged_data(os.path.basename(self.line_edit_csv_selector.text()))
-                self.sc.axes.plot(data['x'], data['y'])
+                self.sc.axes.scatter(data['x'], data['y'])
                 self.sc.draw()
             except Exception as e:
                 print(f"An error occurred: {e}")

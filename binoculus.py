@@ -1,17 +1,12 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget 
-from PyQt5.QtWidgets import QSizePolicy, QWidget, QTabWidget
-from PyQt5.QtWidgets import QGroupBox, QVBoxLayout, QHBoxLayout 
-from PyQt5.QtWidgets import QDateEdit, QComboBox, QLabel, QLineEdit, QSlider, QPushButton
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 
-from ui_exercice import UI_main_excercice
+from ui_main_exercice import UI_main_excercice
 from ui_patient import UI_main_patient
 from ui_patient import UI_connected_patient
 from ui_configuration import UI_main_configuration
 from ui_visualisation import UI_main_visualisation
 from ui_configuration import Selected_config
-
 
 class MainWindow(QMainWindow):
     def __init__(self):

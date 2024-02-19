@@ -11,7 +11,7 @@ from recording import CSV_recorder
 
 from datetime import datetime
 
-from configuration import Screen_calibration
+from screen_calibration import Screen_calibration
 
 import csv
 
@@ -22,15 +22,23 @@ class UI_main_configuration(QWidget):
         super().__init__()
 
         self.__selected_config = selected_config
+        self.__table_list_config = QTableView()
+        self.__model_data_config = QStandardItemModel()
 
         self.sub_tabs = QTabWidget()
-        self.sub_tab1 = Creation()
-        self.sub_tab2 = Select_config(self.__selected_config)
-        self.sub_tabs.addTab(self.sub_tab1, "Creation")
-        self.sub_tabs.addTab(self.sub_tab2, "SelectConfig")
+        self.sub_tab_creation = Creation()
+        self.sub_select_config = Select_config(self.__selected_config, self.__table_list_config)
+        self.sub_tabs.addTab(self.sub_tab_creation, "Creation")
+        self.sub_tabs.addTab(self.sub_select_config, "SelectConfig")
+
+        self.sub_tabs.currentChanged.connect(self.refresh_config)
 
         self.sub_tabs.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.sub_tabs.setFixedWidth(800)
+
+        self.sub_select_config.button_refresh.clicked.connect(self.refresh_config)
+        self.sub_select_config.button_connect.clicked.connect(self.connect_config)
+        self.sub_select_config.button_delete.clicked.connect(self.delete_config)
         
         layout = QHBoxLayout()
         layout.addStretch(1)
@@ -38,6 +46,58 @@ class UI_main_configuration(QWidget):
         layout.addStretch(1)
 
         self.setLayout(layout)
+
+    def refresh_config(self):
+        model = self.get_model_data()
+        self.__table_list_config.setModel(model)
+
+    def get_model_data(self):
+        model = QStandardItemModel()
+        with open('data_configuration.csv', 'r') as file:
+            for row in csv.reader(file, delimiter=';'):
+                items = [QStandardItem(field) for field in row]
+                model.appendRow(items)
+        return model
+
+    def get_id_from_selected_row(self, nameConf):
+        indexes = self.__table_list_config.selectedIndexes()
+        model = self.get_model_data()
+        for index in indexes:
+            row = index.row()
+            column = nameConf #index.column()
+            value = model.data(model.index(row, column))
+            #print(f"({row}, {column} = {value}")
+            return value
+
+    def check_if_row_is_selectioned(self, indexes):
+        return True if indexes else False
+
+    def connect_config(self):
+        if self.check_if_row_is_selectioned(self.__table_list_config.selectedIndexes()):
+            nameConf_selected = self.get_id_from_selected_row(nameConf=0)
+            screen_calibration_value_selected = self.get_id_from_selected_row(nameConf=0)
+
+            self.__selected_config.set_name_config(nameConf_selected)
+        else:
+            dlg = CustomDialog(message="Select a row before connecting")
+            dlg.exec()
+
+    def delete_config(self):
+        if self.check_if_row_is_selectioned(self.__table_list_config.selectedIndexes()):
+            nameConf_selected = self.get_id_from_selected_row(nameConf=0)
+            if self.__selected_config.get_name_config() != nameConf_selected: 
+                df = pd.read_csv('data_configuration.csv', delimiter=';')
+                df = df[df['NameConf'] != nameConf_selected]
+                df.to_csv('data_configuration.csv', index=False, sep=';')
+                dlg = CustomDialog(message="configuration deleted" + str(nameConf_selected))
+                dlg.exec()
+                self.refresh_config()#To refresh the dataview
+            else:
+                dlg = CustomDialog(message="Impossible to delete a connected config: " + str(nameConf_selected))
+                dlg.exec()
+        else:
+            dlg = CustomDialog(message="Select a row before deleting")
+            dlg.exec()
 
 class Creation(QWidget):
     def __init__(self):
@@ -192,82 +252,26 @@ class Selected_config(QWidget):
         return self.__name_config
 
 class Select_config(QWidget):
-    def __init__(self, selected_config):
+    def __init__(self, selected_config, table_list_config):
         super().__init__()
         self.__selected_config = selected_config
+        self.__table_list_config = table_list_config
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.button_refresh = QPushButton("Refresh")
-        self.button_refresh.clicked.connect(self.connect_refresh)
-
         self.button_connect = QPushButton("Connect")
-        self.button_connect.clicked.connect(self.connect_config)
-
         self.button_delete = QPushButton("Delete")
-        self.button_delete.clicked.connect(self.connect_delete)
 
         layout_vertical_button = QHBoxLayout()
         layout_vertical_button.addWidget(self.button_refresh)
         layout_vertical_button.addWidget(self.button_connect)
         layout_vertical_button.addWidget(self.button_delete)
 
-        self.table = QTableView()
-        self.connect_refresh()
-
-        self.table.resizeColumnsToContents()
-
-        #Selected Config
+        self.__table_list_config.resizeColumnsToContents()
 
         layout = QVBoxLayout()
         layout.addLayout(layout_vertical_button)
-        layout.addWidget(self.table)
+        layout.addWidget(self.__table_list_config)
 
         self.setLayout(layout)
-
-    def connect_refresh(self):
-        self.model = self.get_model_data()
-        self.table.setModel(self.model)
-
-    def get_model_data(self):
-        model = QStandardItemModel()
-        with open('data_configuration.csv', 'r') as file:
-            for row in csv.reader(file, delimiter=';'):
-                items = [QStandardItem(field) for field in row]
-                model.appendRow(items)
-        return model
-
-    def get_id_from_selected_row(self, nameConf):
-        indexes = self.table.selectedIndexes()
-        for index in indexes:
-            row = index.row()
-            column = nameConf #index.column()
-            value = self.model.data(self.model.index(row, column))
-            #print(f"({row}, {column} = {value}")
-            return value
-
-    def check_if_row_is_selectioned(self, indexes):
-        return True if indexes else False
-
-    def connect_config(self):
-        if self.check_if_row_is_selectioned(self.table.selectedIndexes()):
-            nameConf_selected = self.get_id_from_selected_row(nameConf=0)
-            screen_calibration_value_selected = self.get_id_from_selected_row(nameConf=0)
-
-            self.__selected_config.set_name_config(nameConf_selected)
-        else:
-            dlg = CustomDialog(message="Select a row before connecting")
-            dlg.exec()
-
-    def connect_delete(self):
-        if self.check_if_row_is_selectioned(self.table.selectedIndexes()):
-            nameConf_selected = self.get_id_from_selected_row(nameConf=0)
-            df = pd.read_csv('data_configuration.csv', delimiter=';')
-            df = df[df['NameConf'] != nameConf_selected]
-            df.to_csv('data_configuration.csv', index=False, sep=';')
-            dlg = CustomDialog(message="configuration deleted" + str(nameConf_selected))
-            dlg.exec()
-            self.connect_refresh()#To refresh the dataview
-        else:
-            dlg = CustomDialog(message="Select a row before deleting")
-            dlg.exec()

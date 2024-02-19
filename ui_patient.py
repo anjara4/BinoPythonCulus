@@ -13,10 +13,6 @@ import sys
 import glob
 import os
 
-from ui_exercice import UI_infinite
-from ui_exercice import UI_fixation
-from ui_exercice import UI_saccade
-
 from ui_customDialog import CustomDialog 
 
 from recording import CSV_recorder
@@ -28,13 +24,22 @@ import pandas as pd
 class UI_main_patient(QWidget):
     def __init__(self, connected_patient):
         super().__init__()
+        self.__connected_patient = connected_patient
+        self.__table_list_patient = QTableView()
+
         self.sub_tabs = QTabWidget()
-        self.sub_tab1 = Creation()
-        self.sub_tab2 = Connexion(connected_patient)
-        self.sub_tab3 = Data()
-        self.sub_tabs.addTab(self.sub_tab1, "Creation")
-        self.sub_tabs.addTab(self.sub_tab2, "Connexion")
-        #self.sub_tabs.addTab(self.sub_tab3, "Data")
+        self.sub_tab_creation = Creation()
+        self.sub_tab_connexion = Connexion(self.__table_list_patient)
+        self.sub_tab_data = Data()
+        self.sub_tabs.addTab(self.sub_tab_creation, "Creation")
+        self.sub_tabs.addTab(self.sub_tab_connexion, "Connexion")
+        #self.sub_tabs.addTab(self.sub_tab_data, "Data")
+
+        self.sub_tab_connexion.button_refresh.clicked.connect(self.refresh_patient)
+        self.sub_tab_connexion.button_connect.clicked.connect(self.connect_patient)
+        self.sub_tab_connexion.button_delete.clicked.connect(self.delete_patient)
+
+        self.sub_tabs.currentChanged.connect(self.refresh_patient)
 
         self.sub_tabs.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.sub_tabs.setFixedWidth(600)
@@ -45,6 +50,56 @@ class UI_main_patient(QWidget):
         layout.addStretch(1)
 
         self.setLayout(layout)
+
+    def refresh_patient(self):
+        model = self.get_model_data()
+        self.__table_list_patient.setModel(model)
+
+    def get_model_data(self):
+        model = QStandardItemModel()
+        with open('data_patient.csv', 'r') as file:
+            for row in csv.reader(file, delimiter=';'):
+                items = [QStandardItem(field) for field in row]
+                model.appendRow(items)
+        return model
+
+    def get_id_from_selected_row(self, index_code_patient):
+        indexes = self.__table_list_patient.selectedIndexes()
+        model = self.get_model_data()
+        for index in indexes:
+            row = index.row()
+            column = index_code_patient #index.column()
+            value = model.data(model.index(row, column))
+            #print(f"({row}, {column} = {value}")
+            return value
+
+    def check_if_row_is_selectioned(self, indexes):
+        return True if indexes else False
+
+    def connect_patient(self):
+        if self.check_if_row_is_selectioned(self.__table_list_patient.selectedIndexes()):
+            code_patient_selected = self.get_id_from_selected_row(index_code_patient=4)
+            self.__connected_patient.set_codePatient(code_patient_selected)
+        else:
+            dlg = CustomDialog(message="Select a row before connecting")
+            dlg.exec()
+
+    def delete_patient(self):
+        if self.check_if_row_is_selectioned(self.__table_list_patient.selectedIndexes()):
+            code_patient_selected = self.get_id_from_selected_row(index_code_patient=4)
+            if self.__connected_patient.get_codePatient() != code_patient_selected: 
+                df = pd.read_csv('data_patient.csv', delimiter=';')
+                df = df[df['CodePatient'] != code_patient_selected]
+                df.to_csv('data_patient.csv', index=False, sep=';')
+                dlg = CustomDialog(message="Patient deleted: " + str(code_patient_selected))
+                dlg.exec()
+                self.refresh_patient()#To refresh the dataview
+            else:
+                dlg = CustomDialog(message="Impossible to delete a connected patient: " + str(code_patient_selected))
+                dlg.exec()
+        else:
+            dlg = CustomDialog(message="Select a row before deleting")
+            dlg.exec()
 
 class UI_connected_patient(QWidget):
     def __init__(self):
@@ -162,82 +217,29 @@ class Creation(QWidget):
             dlg.exec()
 
 class Connexion(QWidget):
-    def __init__(self, connected_patient):
+    def __init__(self, table_list_patient):
         super().__init__()
-        self.__connected_patient = connected_patient
+        self.__table_list_patient = table_list_patient
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.button_refresh = QPushButton("Refresh")
-        self.button_refresh.clicked.connect(self.connect_refresh)
-
         self.button_connect = QPushButton("Connect")
-        self.button_connect.clicked.connect(self.connect_patient)
-
         self.button_delete = QPushButton("Delete")
-        self.button_delete.clicked.connect(self.connect_delete)
 
         layout_vertical_button = QHBoxLayout()
         layout_vertical_button.addWidget(self.button_refresh)
         layout_vertical_button.addWidget(self.button_connect)
         layout_vertical_button.addWidget(self.button_delete)
 
-        self.table = QTableView()
-        self.connect_refresh()
-
         #self.table.resizeRowsToContents()
-        self.table.resizeColumnsToContents()
+        self.__table_list_patient.resizeColumnsToContents()
 
         layout_code_patient = QVBoxLayout()
         layout_code_patient.addLayout(layout_vertical_button)
-        layout_code_patient.addWidget(self.table)
+        layout_code_patient.addWidget(self.__table_list_patient)
 
         self.setLayout(layout_code_patient)
-
-    def connect_refresh(self):
-        self.model = self.get_model_data()
-        self.table.setModel(self.model)
-
-    def get_model_data(self):
-        model = QStandardItemModel()
-        with open('data_patient.csv', 'r') as file:
-            for row in csv.reader(file, delimiter=';'):
-                items = [QStandardItem(field) for field in row]
-                model.appendRow(items)
-        return model
-
-    def get_id_from_selected_row(self, index_code_patient):
-        indexes = self.table.selectedIndexes()
-        for index in indexes:
-            row = index.row()
-            column = index_code_patient #index.column()
-            value = self.model.data(self.model.index(row, column))
-            #print(f"({row}, {column} = {value}")
-            return value
-
-    def check_if_row_is_selectioned(self, indexes):
-        return True if indexes else False
-
-    def connect_patient(self):
-        if self.check_if_row_is_selectioned(self.table.selectedIndexes()):
-            code_patient_selected = self.get_id_from_selected_row(index_code_patient=4)
-            self.__connected_patient.set_codePatient(code_patient_selected)
-        else:
-            dlg = CustomDialog(message="Select a row before connecting")
-            dlg.exec()
-
-    def connect_delete(self):
-        if self.check_if_row_is_selectioned(self.table.selectedIndexes()):
-            code_patient_selected = self.get_id_from_selected_row(index_code_patient=4)
-            df = pd.read_csv('data_patient.csv', delimiter=';')
-            df = df[df['CodePatient'] != code_patient_selected]
-            df.to_csv('data_patient.csv', index=False, sep=';')
-            dlg = CustomDialog(message="patient deleted" + str(code_patient_selected))
-            dlg.exec()
-            self.connect_refresh()#To refresh the dataview
-        else:
-            dlg = CustomDialog(message="Select a row before deleting")
-            dlg.exec()
 
 class CsvTableModel(QStandardItemModel):
     def __init__(self, data, parent=None):
