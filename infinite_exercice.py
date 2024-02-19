@@ -37,8 +37,8 @@ class Infinite(QWidget):
 
         self.__averageAngleSpeed = 0
         self.__currentAngle = 0
-        self.__x = self.__display_width / 2 
-        self.__y = self.__display_height / 2
+        self.__x = self.__display_width / 2 - self.__size/2
+        self.__y = self.__display_height / 2 - self.__size/2
         self.__index = 0
 
         self.__csv_recorder = None
@@ -205,10 +205,10 @@ class Infinite(QWidget):
 
             if self.get_is_object_vertical():
                 self.__x = cos * (tmp / diviser) * self.__x_scaling 
-                self.__x = self.__x + self.__display_width / 2
+                self.__x = self.__x + self.__display_width / 2 - self.__size/2
 
                 self.__y = tmp * self.__y_scaling 
-                self.__y = self.__y + self.__display_height / 2
+                self.__y = self.__y + self.__display_height / 2 - self.__size/2
 
                 #self.ellipses.append((self.__x, self.__y))
 
@@ -226,10 +226,10 @@ class Infinite(QWidget):
                     self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
             else:
                 self.__x = tmp * self.__x_scaling 
-                self.__x = self.__x + self.__display_width / 2
+                self.__x = self.__x + self.__display_width / 2 - self.__size/2
 
                 self.__y = cos * (tmp / diviser) * self.__y_scaling
-                self.__y = self.__y + self.__display_height / 2
+                self.__y = self.__y + self.__display_height / 2 - self.__size/2
 
                 if self.get_is_recording():
                     self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)

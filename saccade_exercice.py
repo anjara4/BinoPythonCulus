@@ -46,8 +46,8 @@ class Saccade(QWidget):
         self.__size_object_cm = 1
         self.__ratio_pixel_cm = 1
         
-        self.__x = self.__display_width / 2 + self.get_delta_hor()
-        self.__y = self.__display_height / 2 + self.get_delta_ver()
+        self.__x = self.__display_width / 2 + self.get_delta_hor() - self.__size/2
+        self.__y = self.__display_height / 2 + self.get_delta_ver() - self.__size/2
 
         self.__csv_recorder = None
         self.__is_recording = False
@@ -133,11 +133,11 @@ class Saccade(QWidget):
             painter.drawEllipse(self.__x, self.__y, self.get_size(), self.get_size())
 
     def __update(self):
-        x_left_tmp = self.__display_width / 2 - self.get_delta_hor()
-        y_left_tmp = self.__display_height / 2 - self.get_delta_ver()
+        x_left_tmp = self.__display_width / 2 - self.get_delta_hor() - self.__size/2
+        y_left_tmp = self.__display_height / 2 - self.get_delta_ver() - self.__size/2
 
-        x_right_tmp = self.__display_width / 2 + self.get_delta_hor()
-        y_right_tmp = self.__display_height / 2 + self.get_delta_ver()
+        x_right_tmp = self.__display_width / 2 + self.get_delta_hor() - self.__size/2
+        y_right_tmp = self.__display_height / 2 + self.get_delta_ver() - self.__size/2
 
         if self.__nb_cycle > self.__cpt_cycle: 
             if self.__is_object_on_left:

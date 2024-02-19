@@ -46,8 +46,8 @@ class Fixation(QWidget):
         self.__size_object_cm = 1
         self.__ratio_pixel_cm = 1
 
-        self.__x = self.__display_width / 2 
-        self.__y = self.__display_height / 2 
+        self.__x = self.__display_width / 2 - self.__size/2
+        self.__y = self.__display_height / 2 - self.__size/2
 
         self.__csv_recorder = None
         self.__is_recording = False
@@ -142,8 +142,8 @@ class Fixation(QWidget):
 
     def __update(self):
         if self.__current_time < self.__time_exo:
-            self.__x = self.__display_width / 2 - self.get_hor_pos()
-            self.__y = self.__display_height / 2 - self.get_ver_pos()
+            self.__x = self.__display_width / 2 - self.get_hor_pos() - self.__size/2
+            self.__y = self.__display_height / 2 - self.get_ver_pos() - self.__size/2
 
             if self.get_is_recording():
                 self.get_csv_recorder().record(self.__current_time, self.__x, self.__y)
