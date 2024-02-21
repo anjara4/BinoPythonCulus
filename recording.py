@@ -1,8 +1,8 @@
 import csv
-from datetime import datetime
 import zmq
 
 from ui_customDialog import CustomDialog 
+from parameters import Parameters
 
 class CSV_recorder:
     def __init__(self):
@@ -18,10 +18,6 @@ class CSV_recorder:
         with open(self.__filename, 'a', newline='\n') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
             writer.writerow(["time", "x", "y"])
-
-    def generate_filename(self, code_patient, exercice_name):
-        now = datetime.now()
-        return code_patient + "_" + now.strftime('%d-%m-%Y') + "_" + now.strftime("%H") + "-" + now.strftime("%M") + "_" + exercice_name + "_Target.csv"
 
     def record(self, t, x, y):
         with open(self.__filename, 'a', newline='\n') as csvfile:
@@ -42,15 +38,18 @@ class PupilLabs_recorder:
     def __init__(self):
         self.ctx = zmq.Context()
         self.pupil_remote = zmq.Socket(self.ctx, zmq.REQ)
+        parameters = Parameters()
+        self.ip_adresse = parameters.ip_adresse
+        self.port_number = parameters.port_number
 
-    def start_record_pupilLab(self, pupilLabStatus):
+    def start_record_pupilLab(self, pupilLabStatus, folderName):
         if pupilLabStatus == None:
             dlg = CustomDialog(message="PupilLab application not detected")
             dlg.exec() 
         elif pupilLabStatus.poll() is None:
-            self.pupil_remote.connect('tcp://127.0.0.1:50020')
+            self.pupil_remote.connect('tcp://' + self.ip_adresse + ':' + self.port_number)
 
-            self.pupil_remote.send_string('R')
+            self.pupil_remote.send_string('R ' + folderName)
             print(self.pupil_remote.recv_string())
         else:
             dlg = CustomDialog(message="PupilLab application not detected")
@@ -61,6 +60,6 @@ class PupilLabs_recorder:
             return
 
         elif pupilLabStatus.poll() is None:
-            self.pupil_remote.connect('tcp://127.0.0.1:50020')
+            self.pupil_remote.connect('tcp://' + self.ip_adresse + ':' + self.port_number)
             self.pupil_remote.send_string('r')
             print(self.pupil_remote.recv_string())

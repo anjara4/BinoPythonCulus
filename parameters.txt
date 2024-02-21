@@ -1,0 +1,9 @@
+image_calibration = Image/Calibration.png
+image_recording = Image/record_icon.png
+data_folder_path = Data/
+data_patient = Data_conf/data_patient.csv
+data_configuration = Data_conf/data_configuration.csv
+ip_adresse = 127.0.0.1
+port_number = 50020
+size_object_screen_calibration = 1000
+size_object_calibration_lens = 300

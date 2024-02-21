@@ -8,6 +8,7 @@ import csv
 
 from screen_calibration import Screen_calibration
 from recording import PupilLabs_recorder
+from parameters import Parameters
 
 class Fixation(QWidget):
     def __init__(self, pupilLabs, recording_label):
@@ -59,7 +60,8 @@ class Fixation(QWidget):
         self.__selected_config = value
 
     def get_size_object_cm(self):
-        df = pd.read_csv('data_configuration.csv', delimiter=';')
+        parameters = Parameters()
+        df = pd.read_csv(parameters.data_configuration, delimiter=';')
         filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
         return filtered_df['SizeObject'].values.item()
 

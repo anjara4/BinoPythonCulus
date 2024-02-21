@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 import pandas as pd
 
 from ui_customDialog import CustomDialog 
+from parameters import Parameters
 
 import subprocess
 import zmq
@@ -18,7 +19,8 @@ class PupilLabs(QWidget):
         self.__pupilLabs_status = None
 
     def get_path_pupilLabs(self):
-        df = pd.read_csv('data_configuration.csv', delimiter=';')
+        parameters = Parameters()
+        df = pd.read_csv(parameters.data_configuration, delimiter=';')
         
         filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
 
@@ -48,7 +50,8 @@ class PupilLabs(QWidget):
         elif self.__pupilLabs_status.poll() is None:
             ctx = zmq.Context()
             pupil_remote = zmq.Socket(ctx, zmq.REQ)
-            pupil_remote.connect('tcp://127.0.0.1:50020')
+            parameters = Parameters()
+            pupil_remote.connect('tcp://' + parameters.ip_adresse + ':' + parameters.port_number)
 
             pupil_remote.send_string('C')
             print(pupil_remote.recv_string())

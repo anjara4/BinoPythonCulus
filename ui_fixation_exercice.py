@@ -5,8 +5,11 @@ from PyQt5.QtWidgets import QComboBox, QLabel, QSlider, QPushButton
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPixmap
+from datetime import datetime
+import os
 
 from fixation_exercice import Fixation
+from parameters import Parameters
 
 from ui_customDialog import CustomDialog
 from recording import CSV_recorder
@@ -20,13 +23,15 @@ class UI_fixation(QWidget):
         self.__connected_patient = connected_patient
         self.__selected_config = selected_config
         self.__calibration = calibration
+        parameters = Parameters()
+        self.__data_path = parameters.data_folder_path 
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Create a QLabel to display the recording status
         self.lb_rec_img = QLabel(self)
         self.lb_rec_img.setGeometry(10, 10, 50, 50)
-        self.pp_rec = QPixmap('record_icon.png')
+        self.pp_rec = QPixmap(parameters.image_recording)
 
         lb_color = QLabel("Select target color")
         self.cb_color = QComboBox()
@@ -94,11 +99,22 @@ class UI_fixation(QWidget):
         bt_run = QPushButton("Run Fixation")
         bt_run.clicked.connect(self.bt_call_run_fixation)
 
-        bt_record_target = QPushButton("Rec Target")
-        bt_record_target.clicked.connect(self.bt_call_record_target)
+        bt_run_record_target = QPushButton("Rec Target")
+        bt_run_record_target.clicked.connect(lambda: self.bt_call_record_target(
+            self.generate_foldername_rec(
+                "Fixation", 
+                self.__connected_patient.get_codePatient()),
+            self.generate_filename_rec(
+                "Fixation", 
+                self.__connected_patient.get_codePatient())
+            ))
 
-        bt_record_pupil = QPushButton("Rec Pupil")
-        bt_record_pupil.clicked.connect(self.bt_call_record_pupil)
+        bt_run_record_pupil = QPushButton("Rec Pupil")
+        bt_run_record_pupil.clicked.connect(lambda: self.bt_call_record_pupil(
+            self.generate_foldername_rec(
+                "Fixation", 
+                self.__connected_patient.get_codePatient())
+            ))
 
         bt_run_all = QPushButton("Run All")
         bt_run_all.clicked.connect(self.bt_call_run_all)
@@ -136,8 +152,8 @@ class UI_fixation(QWidget):
 
         lt_bt_run_record = QHBoxLayout()
         lt_bt_run_record.addWidget(bt_run)
-        lt_bt_run_record.addWidget(bt_record_target)
-        lt_bt_run_record.addWidget(bt_record_pupil)
+        lt_bt_run_record.addWidget(bt_run_record_target)
+        lt_bt_run_record.addWidget(bt_run_record_pupil)
         lt_bt_run_record.addWidget(bt_run_all)
         lt_bt_run_record.addWidget(bt_stop)
 
@@ -172,13 +188,45 @@ class UI_fixation(QWidget):
         self.lb_sd_hor_pos_value.setText(str(self.sd_hor_pos.value()))
 
     def bt_call_run_all(self):
-        self.bt_call_run_fixation()
-        self.bt_call_record_target()
-        self.bt_call_record_pupil()
+        folder_recording_name = self.generate_foldername_rec(
+            "Fixation", 
+            self.__connected_patient.get_codePatient())
 
-    def bt_call_record_pupil(self):
+        file_recording_name = self.generate_filename_rec(
+            "Fixation", 
+            self.__connected_patient.get_codePatient())
+
+        self.bt_call_run_fixation()
+        self.bt_call_record_target(folder_recording_name, file_recording_name)
+        self.bt_call_record_pupil(folder_recording_name)
+
+    def generate_folder_rec(self, foldername):
+        try:
+            os.mkdir(foldername)
+        except OSError:
+            print(f"Creation of the directory {foldername} failed")
+        else:
+            print(f"Successfully created the directory {foldername}")
+
+    def generate_filename_rec(self, exercice_name, code_patient):
+        now = datetime.now()
+        date = now.strftime('%d-%m-%Y')
+        time = now.strftime("%H") + "-" + now.strftime("%M")
+        filename = f"{exercice_name}_{code_patient}_{date}_{time}_Target.csv"
+        return filename
+
+    def generate_foldername_rec(self, exercice_name, code_patient):
+        now = datetime.now()
+        date = now.strftime('%d-%m-%Y')
+        time = now.strftime("%H") + "-" + now.strftime("%M")
+        filename = self.__data_path + f"{exercice_name}_{code_patient}_{date}_{time}"
+        self.generate_folder_rec(filename)
+        return filename
+
+    def bt_call_record_pupil(self, folder_recording_name): 
         self.pupilLabs_recorder.start_record_pupilLab(
-            self.__calibration.get_pupilLabs().get_status())
+            self.__calibration.get_pupilLabs().get_status(),
+            folder_recording_name)
 
     def bt_call_stop(self):
         self.pupilLabs_recorder.stop_record_pupilLab(
@@ -217,14 +265,11 @@ class UI_fixation(QWidget):
             dlg = CustomDialog(message="Apply a config")
             dlg.exec()
 
-    def bt_call_record_target(self):
+    def bt_call_record_target(self, folder_recording_name, file_recording_name):
         if self.fixation is not None:
             if self.__connected_patient.get_codePatient() != "None":
                 csv_recorder = CSV_recorder()
-                csv_recorder.set_filename(
-                    csv_recorder.generate_filename(
-                        self.__connected_patient.get_codePatient(),
-                        "Fixation"))
+                csv_recorder.set_filename(folder_recording_name + "/" + file_recording_name)
                 csv_recorder.set_header()
 
                 self.fixation.set_csv_recorder(csv_recorder)

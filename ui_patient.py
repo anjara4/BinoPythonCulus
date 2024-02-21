@@ -14,18 +14,18 @@ import glob
 import os
 
 from ui_customDialog import CustomDialog 
-
 from recording import CSV_recorder
-
 from datetime import datetime
-
 import pandas as pd
+from parameters import Parameters
 
 class UI_main_patient(QWidget):
     def __init__(self, connected_patient):
         super().__init__()
         self.__connected_patient = connected_patient
         self.__table_list_patient = QTableView()
+        parameters = Parameters()
+        self.__data_patient = parameters.data_patient
 
         self.sub_tabs = QTabWidget()
         self.sub_tab_creation = Creation()
@@ -57,7 +57,7 @@ class UI_main_patient(QWidget):
 
     def get_model_data(self):
         model = QStandardItemModel()
-        with open('data_patient.csv', 'r') as file:
+        with open(self.__data_patient, 'r') as file:
             for row in csv.reader(file, delimiter=';'):
                 items = [QStandardItem(field) for field in row]
                 model.appendRow(items)
@@ -88,9 +88,9 @@ class UI_main_patient(QWidget):
         if self.check_if_row_is_selectioned(self.__table_list_patient.selectedIndexes()):
             code_patient_selected = self.get_id_from_selected_row(index_code_patient=4)
             if self.__connected_patient.get_codePatient() != code_patient_selected: 
-                df = pd.read_csv('data_patient.csv', delimiter=';')
+                df = pd.read_csv(self.__data_patient, delimiter=';')
                 df = df[df['CodePatient'] != code_patient_selected]
-                df.to_csv('data_patient.csv', index=False, sep=';')
+                df.to_csv(self.__data_patient, index=False, sep=';')
                 dlg = CustomDialog(message="Patient deleted: " + str(code_patient_selected))
                 dlg.exec()
                 self.refresh_patient()#To refresh the dataview
@@ -203,14 +203,14 @@ class Creation(QWidget):
     def save_patient(self):
         if self.save_patient_validator():
             csv_recorder = CSV_recorder()
-            csv_recorder.save_patient("data_patient.csv", 
+            csv_recorder.save_patient(self.__data_patient, 
                 self.line_edit_first_name.text(), 
                 self.line_edit_name.text(), 
                 self.combo_box_sex.currentText(),
                 self.date_edit_date_of_birth.text(), 
                 self.line_edit_code_patient.text(),
                 datetime.now().strftime('%d-%m-%Y'))
-            dlg = CustomDialog(message="Patient saved in data_patient.csv")
+            dlg = CustomDialog(message="Patient saved in Data_conf/data_patient.csv")
             dlg.exec()
         else:
             dlg = CustomDialog(message="All the information are mandatory")
@@ -254,6 +254,8 @@ class Data(QWidget):
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         self.label_filter = QLabel("Select a filter")
+        parameters = Parameters()
+        self.__data_patient = parameters.data_patient
         
         self.combo_box_filter = QComboBox()
         self.combo_box_filter.setSizePolicy(size_policy)
@@ -286,7 +288,7 @@ class Data(QWidget):
         self.setLayout(layout)
 
     def load_patient_data(self):
-        with open('data_patient.csv', 'r') as f:
+        with open(self.__data_patient, 'r') as f:
             reader = csv.reader(f, delimiter=';')
             next(reader)
             for row in reader:

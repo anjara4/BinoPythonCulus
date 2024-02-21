@@ -4,8 +4,11 @@ from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QComboBox
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtGui import QPixmap
+from datetime import datetime
+import os
 
 from infinite_exercice import Infinite
+from parameters import Parameters
 
 from ui_customDialog import CustomDialog
 from recording import CSV_recorder
@@ -19,13 +22,15 @@ class UI_infinite(QWidget):
         self.__calibration = calibration
         self.infinite = None
         self.pupilLabs_recorder = PupilLabs_recorder()
+        parameters = Parameters()
+        self.__data_path = parameters.data_folder_path 
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Create a QLabel to display the recording status
         self.lb_rec_img = QLabel(self)
         self.lb_rec_img.setGeometry(10, 10, 50, 50)
-        self.pp_rec = QPixmap('record_icon.png')
+        self.pp_rec = QPixmap(parameters.image_recording)
 
         lb_direction = QLabel("Select target direction")
         self.cb_direction = QComboBox()
@@ -149,10 +154,21 @@ class UI_infinite(QWidget):
         bt_run.clicked.connect(self.bt_call_run_infini)
 
         bt_run_record_target = QPushButton("Rec Target")
-        bt_run_record_target.clicked.connect(self.bt_call_record_target)
+        bt_run_record_target.clicked.connect(lambda: self.bt_call_record_target(
+            self.generate_foldername_rec(
+                self.get_exercice_name(), 
+                self.__connected_patient.get_codePatient()),
+            self.generate_filename_rec(
+                self.get_exercice_name(), 
+                self.__connected_patient.get_codePatient())
+            ))
 
         bt_run_record_pupil = QPushButton("Rec Pupil")
-        bt_run_record_pupil.clicked.connect(self.bt_call_record_pupil)
+        bt_run_record_pupil.clicked.connect(lambda: self.bt_call_record_pupil(
+            self.generate_foldername_rec(
+                "Fixation", 
+                self.__connected_patient.get_codePatient())
+            ))
 
         bt_run_all = QPushButton("Run All")
         bt_run_all.clicked.connect(self.bt_call_run_all)
@@ -181,6 +197,13 @@ class UI_infinite(QWidget):
 
         self.setLayout(self.lt)
 
+    def get_exercice_name(self):
+        if (self.cb_direction.currentIndex() == 0):
+            # index==0 -> is_vertical=True
+            return "InfiniteV"
+        else:
+            return "InfiniteH"
+
     def create_form_automatic_stop(self):
         if self.rb_false.isChecked():
             self.sd_nb_cycle.setEnabled(False)
@@ -205,6 +228,33 @@ class UI_infinite(QWidget):
     def bt_call_record_pupil(self):
         self.pupilLabs_recorder.start_record_pupilLab(
             self.__calibration.get_pupilLabs().get_status())
+    def generate_folder_rec(self, foldername):
+        try:
+            os.mkdir(foldername)
+        except OSError:
+            print(f"Creation of the directory {foldername} failed")
+        else:
+            print(f"Successfully created the directory {foldername}")
+
+    def generate_filename_rec(self, exercice_name, code_patient):
+        now = datetime.now()
+        date = now.strftime('%d-%m-%Y')
+        time = now.strftime("%H") + "-" + now.strftime("%M")
+        filename = f"{exercice_name}_{code_patient}_{date}_{time}_Target.csv"
+        return filename
+
+    def generate_foldername_rec(self, exercice_name, code_patient):
+        now = datetime.now()
+        date = now.strftime('%d-%m-%Y')
+        time = now.strftime("%H") + "-" + now.strftime("%M")
+        filename = self.__data_path + f"{exercice_name}_{code_patient}_{date}_{time}"
+        self.generate_folder_rec(filename)
+        return filename
+
+    def bt_call_record_pupil(self, folder_recording_name): 
+        self.pupilLabs_recorder.start_record_pupilLab(
+            self.__calibration.get_pupilLabs().get_status(),
+            folder_recording_name)
 
     def bt_call_stop(self):
         self.pupilLabs_recorder.stop_record_pupilLab(
@@ -215,9 +265,18 @@ class UI_infinite(QWidget):
             self.infinite = None
 
     def bt_call_run_all(self):
+        folder_recording_name = self.generate_foldername_rec(
+            "Fixation", 
+            self.__connected_patient.get_codePatient())
+
+        file_recording_name = self.generate_filename_rec(
+            "Fixation", 
+            self.__connected_patient.get_codePatient())
+
         self.bt_call_run_infini()
-        self.bt_call_record_pupil()
-        self.bt_call_record_target()
+        
+        self.bt_call_record_target(folder_recording_name, file_recording_name)
+        self.bt_call_record_pupil(folder_recording_name)
 
     def bt_call_run_infini(self):
         if self.__selected_config.get_name_config() != "None":
@@ -258,20 +317,12 @@ class UI_infinite(QWidget):
             dlg = CustomDialog(message="Apply a config")
             dlg.exec()
 
-    def bt_call_record_target(self):
+    def bt_call_record_target(self, folder_recording_name, file_recording_name):
         if self.infinite is not None:
             if self.__connected_patient.get_codePatient() != "None":
-                if (self.cb_direction.currentIndex() == 0):
-                    # index==0 -> is_vertical=True
-                    exercice_name = "InfiniteV"
-                else:
-                    exercice_name = "InfiniteH"
 
                 csv_recorder = CSV_recorder()
-                csv_recorder.set_filename(
-                    csv_recorder.generate_filename(
-                        self.__connected_patient.get_codePatient(),
-                        exercice_name))
+                csv_recorder.set_filename(folder_recording_name + "/" + file_recording_name)
                 csv_recorder.set_header()
 
                 self.infinite.set_csv_recorder(csv_recorder)

@@ -3,6 +3,8 @@ from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QPixmap
 from PyQt5.QtCore import Qt, QTimer
 import math
 
+from parameters import Parameters
+
 class Screen_calibration(QWidget):
     def __init__(self):
         super().__init__()
@@ -12,7 +14,8 @@ class Screen_calibration(QWidget):
         self.__display_width = screen.width() 
         self.__display_height = screen.height()  
 
-        self.__size = 1000
+        parameters = Parameters()
+        self.__size = int(parameters.size_object_screen_calibration)
 
     def get_size_object_px(self):
         return self.__size

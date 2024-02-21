@@ -1,21 +1,17 @@
 from PyQt5.QtWidgets import QWidget, QTabWidget, QTableView, QDesktopWidget, QFileDialog
 from PyQt5.QtWidgets import QSizePolicy, QDateEdit, QLabel, QGroupBox, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QIntValidator, QDoubleValidator
+from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
 from PyQt5.QtCore import QLocale
 
+import csv
+import pandas as pd
 
 from ui_customDialog import CustomDialog 
-from PyQt5.QtGui import QColor, QStandardItemModel, QStandardItem
-
 from recording import CSV_recorder
-
 from datetime import datetime
-
 from screen_calibration import Screen_calibration
-
-import csv
-
-import pandas as pd
+from parameters import Parameters
 
 class UI_main_configuration(QWidget):
     def __init__(self, selected_config):
@@ -24,6 +20,9 @@ class UI_main_configuration(QWidget):
         self.__selected_config = selected_config
         self.__table_list_config = QTableView()
         self.__model_data_config = QStandardItemModel()
+
+        parameters = Parameters()
+        self.__data_configuration = parameters.data_configuration
 
         self.sub_tabs = QTabWidget()
         self.sub_tab_creation = Creation()
@@ -53,7 +52,7 @@ class UI_main_configuration(QWidget):
 
     def get_model_data(self):
         model = QStandardItemModel()
-        with open('data_configuration.csv', 'r') as file:
+        with open(self.__data_configuration, 'r') as file:
             for row in csv.reader(file, delimiter=';'):
                 items = [QStandardItem(field) for field in row]
                 model.appendRow(items)
@@ -86,9 +85,9 @@ class UI_main_configuration(QWidget):
         if self.check_if_row_is_selectioned(self.__table_list_config.selectedIndexes()):
             nameConf_selected = self.get_id_from_selected_row(nameConf=0)
             if self.__selected_config.get_name_config() != nameConf_selected: 
-                df = pd.read_csv('data_configuration.csv', delimiter=';')
+                df = pd.read_csv(self.__data_configuration, delimiter=';')
                 df = df[df['NameConf'] != nameConf_selected]
-                df.to_csv('data_configuration.csv', index=False, sep=';')
+                df.to_csv(self.__data_configuration, index=False, sep=';')
                 dlg = CustomDialog(message="configuration deleted" + str(nameConf_selected))
                 dlg.exec()
                 self.refresh_config()#To refresh the dataview
@@ -104,6 +103,8 @@ class Creation(QWidget):
         super().__init__()
 
         self.screen_calibration = None
+        parameters = Parameters()
+        self.__data_configuration = parameters.data_configuration
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
@@ -219,7 +220,7 @@ class Creation(QWidget):
     def save_configuration(self):
         if self.save_configuration_validator():
             csv_recorder = CSV_recorder()
-            csv_recorder.save_configuration("data_configuration.csv",
+            csv_recorder.save_configuration(self.__data_configuration,
                 self.line_edit_name_config.text(),
                 self.line_edit_depth.text(),
                 self.line_edit_screen_width.text(),
@@ -227,7 +228,7 @@ class Creation(QWidget):
                 self.line_edit_size_object_cm.text(),
                 self.line_edit_exe_selector.text(),
                 datetime.now().strftime('%d-%m-%Y'))
-            dlg = CustomDialog(message="Configuration saved in data_configuration.csv")
+            dlg = CustomDialog(message="Configuration saved in data_conf/data_configuration.csv")
             dlg.exec()
         else:
             dlg = CustomDialog(message="All the information are mandatory")
