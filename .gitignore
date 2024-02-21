@@ -1,1 +1,6 @@
+# Ignore all .csv files
 *.csv
+
+# But don't ignore these .csv files
+!/Data_conf/data_configuration.csv
+!/Data_conf/data_patient.csv
