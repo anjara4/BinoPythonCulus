@@ -4,6 +4,9 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.Qt import Qt
 import math
 from parameters import Parameters
+from threading import Thread
+import time
+from csv_recorder import CSV_recorder
 
 class Point:
     def __init__(self, x, y):
@@ -13,7 +16,7 @@ class Point:
 class Calibration(QWidget):
     closed = pyqtSignal()
 
-    def __init__(self, size):
+    def __init__(self, size, connected_patient, folder_recording_name, file_recording_name):
         super().__init__()
         self.setWindowTitle("Calibration")
 
@@ -30,6 +33,14 @@ class Calibration(QWidget):
 
         self.__size = size
         self.__space_key_pressed = False
+        self.__calibration_on = True
+
+        self.folder_recording_name = folder_recording_name
+        self.file_recording_name = file_recording_name
+
+        self.csv_recorder = CSV_recorder()
+        self.csv_recorder.set_filename(self.folder_recording_name + "/" + self.file_recording_name + "position_calibration.csv")
+        self.csv_recorder.set_header()
         
         self.__position = [
             Point(self.__display_width/2 - self.__size/2, self.__display_height/2 - self.__size/2),  # Center
@@ -37,20 +48,28 @@ class Calibration(QWidget):
             Point(self.__display_width - self.__size, self.__display_height - self.__size),  # Bottom-right corner
             Point(0, self.__display_height - self.__size),  # Bottom-left corner
             Point(0, 0)  # Top-left corner
-]
+        ]
+
+        self.record_data_thread = Thread(target=self.record_data)
+        self.record_data_thread.start()
 
     def paintEvent(self, event):
         if self.__i < len(self.__position):
             painter = QPainter(self)
             parameters = Parameters()
             pixmap = QPixmap(parameters.image_calibration) 
-            painter.drawPixmap(self.__position[self.__i].x, self.__position[self.__i].y, self.__size, self.__size, pixmap)
+            painter.drawPixmap(
+                self.__position[self.__i].x, 
+                self.__position[self.__i].y, 
+                self.__size, 
+                self.__size, pixmap)
 
     def __update(self):
         if self.__space_key_pressed == True and self.__i < len(self.__position):
             self.__i = self.__i + 1
             self.__space_key_pressed = False
         elif self.__i >= len(self.__position):
+            self.__calibration_on = False
             self.close()
         self.update()
 
@@ -67,5 +86,24 @@ class Calibration(QWidget):
 
     def set_size(self, value):
         self.__size = value
+
+    def record_data(self):
+        start_pc_time = time.perf_counter()
+        time_data = self.__time_step
+        while self.__calibration_on == True:            
+            current_pc_time = time.perf_counter()
+            elapsed_pc_time = current_pc_time - start_pc_time
+            if elapsed_pc_time >= self.__time_step:
+                start_pc_time = time.perf_counter()
+                if self.__i < len(self.__position):
+                    self.csv_recorder.record(
+                        round(time_data, 2), 
+                        round(self.__position[self.__i].x, 2),
+                        round(self.__position[self.__i].y, 2)
+                    )
+                    time_data = time_data + self.__time_step
+                else:
+                    break
+
 
 

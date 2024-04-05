@@ -8,7 +8,7 @@ import csv
 import pandas as pd
 
 from ui_customDialog import CustomDialog 
-from recording import CSV_recorder
+from csv_recorder import CSV_recorder
 from datetime import datetime
 from screen_calibration import Screen_calibration
 from parameters import Parameters

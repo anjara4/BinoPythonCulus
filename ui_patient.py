@@ -13,8 +13,9 @@ import sys
 import glob
 import os
 
+from PyQt5.QtCore import pyqtSignal
 from ui_customDialog import CustomDialog 
-from recording import CSV_recorder
+from csv_recorder import CSV_recorder
 from datetime import datetime
 import pandas as pd
 from parameters import Parameters
@@ -30,6 +31,9 @@ class UI_main_patient(QWidget):
         self.sub_tabs = QTabWidget()
         self.sub_tab_creation = Creation()
         self.sub_tab_connexion = Connexion(self.__table_list_patient)
+
+        self.sub_tab_creation.createdPatientSignal.connect(self.connect_new_created_patient)
+        
         self.sub_tab_data = Data()
         self.sub_tabs.addTab(self.sub_tab_creation, "Creation")
         self.sub_tabs.addTab(self.sub_tab_connexion, "Connexion")
@@ -76,6 +80,9 @@ class UI_main_patient(QWidget):
     def check_if_row_is_selectioned(self, indexes):
         return True if indexes else False
 
+    def connect_new_created_patient(self, code_new_patient):
+        self.__connected_patient.set_codePatient(code_new_patient)
+
     def connect_patient(self):
         if self.check_if_row_is_selectioned(self.__table_list_patient.selectedIndexes()):
             code_patient_selected = self.get_id_from_selected_row(index_code_patient=4)
@@ -120,9 +127,14 @@ class UI_connected_patient(QWidget):
         return self.__codePatient
 
 class Creation(QWidget):
+    createdPatientSignal = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        parameters = Parameters()
+        self.__data_patient = parameters.data_patient
 
         self.label_first_name = QLabel("*Enter first name")
         self.line_edit_first_name = QLineEdit()
@@ -210,8 +222,11 @@ class Creation(QWidget):
                 self.date_edit_date_of_birth.text(), 
                 self.line_edit_code_patient.text(),
                 datetime.now().strftime('%d-%m-%Y'))
+            
             dlg = CustomDialog(message="Patient saved in Data_conf/data_patient.csv")
             dlg.exec()
+
+            self.createdPatientSignal.emit(self.line_edit_code_patient.text())
         else:
             dlg = CustomDialog(message="All the information are mandatory")
             dlg.exec()
