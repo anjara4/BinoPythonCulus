@@ -41,17 +41,19 @@ class Calibration(QWidget):
         self.csv_recorder = CSV_recorder()
         self.csv_recorder.set_filename(self.folder_recording_name + "/" + self.file_recording_name + "position_calibration.csv")
         self.csv_recorder.set_header()
+
+        self.__csv_recorder = None
+        current_time = time.perf_counter()
+        self.__start_time = current_time
         
         self.__position = [
             Point(self.__display_width/2 - self.__size/2, self.__display_height/2 - self.__size/2),  # Center
+            Point(0, 0),  # Top-left corner
             Point(self.__display_width - self.__size, 0),  # Top-right corner
             Point(self.__display_width - self.__size, self.__display_height - self.__size),  # Bottom-right corner
-            Point(0, self.__display_height - self.__size),  # Bottom-left corner
-            Point(0, 0)  # Top-left corner
+            Point(0, self.__display_height - self.__size)  # Bottom-left corner
         ]
 
-        self.record_data_thread = Thread(target=self.record_data)
-        self.record_data_thread.start()
 
     def paintEvent(self, event):
         if self.__i < len(self.__position):
@@ -66,6 +68,14 @@ class Calibration(QWidget):
 
     def __update(self):
         if self.__space_key_pressed == True and self.__i < len(self.__position):
+            current_time = time.perf_counter()
+            elapsed_time = current_time - self.__start_time
+            self.csv_recorder.record(
+                round(elapsed_time, 2),
+                round(self.__position[self.__i].x, 2),
+                round(self.__position[self.__i].y, 2)
+                )
+
             self.__i = self.__i + 1
             self.__space_key_pressed = False
         elif self.__i >= len(self.__position):
@@ -86,24 +96,4 @@ class Calibration(QWidget):
 
     def set_size(self, value):
         self.__size = value
-
-    def record_data(self):
-        start_pc_time = time.perf_counter()
-        time_data = self.__time_step
-        while self.__calibration_on == True:            
-            current_pc_time = time.perf_counter()
-            elapsed_pc_time = current_pc_time - start_pc_time
-            if elapsed_pc_time >= self.__time_step:
-                start_pc_time = time.perf_counter()
-                if self.__i < len(self.__position):
-                    self.csv_recorder.record(
-                        round(time_data, 2), 
-                        round(self.__position[self.__i].x, 2),
-                        round(self.__position[self.__i].y, 2)
-                    )
-                    time_data = time_data + self.__time_step
-                else:
-                    break
-
-
 

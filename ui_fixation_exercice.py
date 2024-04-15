@@ -16,6 +16,7 @@ from ui_customDialog import CustomDialog
 from csv_recorder import CSV_recorder
 from PyQt5.QtCore import pyqtSignal
 
+
 class UI_fixation(QWidget):
     toggleSignal = pyqtSignal(bool)
 
@@ -190,7 +191,7 @@ class UI_fixation(QWidget):
         lb_duration_exo = QLabel("Duration (s)")
         self.sd_duration_exo = QSlider(Qt.Horizontal, self)
         self.sd_duration_exo.setSizePolicy(size_policy)
-        self.sd_duration_exo.setFixedWidth(272)
+        self.sd_duration_exo.setFixedWidth(266)
         self.sd_duration_exo.setMinimum(1)
         self.sd_duration_exo.setMaximum(500)
         self.sd_duration_exo.setSliderPosition(10)
@@ -198,7 +199,7 @@ class UI_fixation(QWidget):
         self.sd_duration_exo.valueChanged.connect(self.update_sd_duration_exo_value)
         self.lb_sd_duration_exo_value = QLabel()
         self.lb_sd_duration_exo_value.setSizePolicy(size_policy)
-        self.lb_sd_duration_exo_value.setFixedWidth(15)
+        self.lb_sd_duration_exo_value.setFixedWidth(21)
         self.lb_sd_duration_exo_value.setText(str(self.sd_duration_exo.value()))
         lt_duration_exo = QHBoxLayout()
         lt_duration_exo.addWidget(lb_duration_exo)
@@ -249,12 +250,13 @@ class UI_fixation(QWidget):
         dlg = CustomDialog(message="Calibration done")
         dlg.exec() 
         self.__calibration.closed.disconnect(self.calibration_window_closed)  # Disconnect the signal
-        
+
         if self.__cam_left is not None:
             self.__cam_left.stop_recording()
         
         if self.__cam_right is not None:
             self.__cam_right.stop_recording()
+
 
     def start_calibration_lens(self):
         if self.check_condition_all():
@@ -483,6 +485,13 @@ class UI_fixation(QWidget):
 
                 self.__fixation.set_csv_recorder(csv_recorder)
 
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Fixation_Target", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
                         self.lb_rec_img.width(),
@@ -501,6 +510,13 @@ class UI_fixation(QWidget):
         if self.check_condition_all():
             if self.__pupil_labs.get_status() is not None:
                 self.__pupil_labs.start_record(folder_recording_name)
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Fixation_Pupil", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
 
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
@@ -521,6 +537,13 @@ class UI_fixation(QWidget):
                 self.__cam_left.start_recording(
                     folder_recording_name + "/" +
                     file_recording_name + "_left")
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Fixation_Lens", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
             else:
                 print("No video from the left camera")
 
@@ -528,6 +551,14 @@ class UI_fixation(QWidget):
                 self.__cam_right.start_recording(
                     folder_recording_name + "/" +
                     file_recording_name + "_right")
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Fixation_Lens", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
             else:
                 print("No video from the right camera")
 

@@ -25,6 +25,7 @@ class UI_main_patient(QWidget):
         super().__init__()
         self.__connected_patient = connected_patient
         self.__table_list_patient = QTableView()
+        self.__table_list_patient.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
         parameters = Parameters()
         self.__data_patient = parameters.data_patient
 
@@ -39,21 +40,21 @@ class UI_main_patient(QWidget):
         self.sub_tabs.addTab(self.sub_tab_connexion, "Connexion")
         #self.sub_tabs.addTab(self.sub_tab_data, "Data")
 
-        self.sub_tab_connexion.button_refresh.clicked.connect(self.refresh_patient)
-        self.sub_tab_connexion.button_connect.clicked.connect(self.connect_patient)
-        self.sub_tab_connexion.button_delete.clicked.connect(self.delete_patient)
+        self.sub_tab_connexion.bt_refresh.clicked.connect(self.refresh_patient)
+        self.sub_tab_connexion.bt_connect.clicked.connect(self.connect_patient)
+        self.sub_tab_connexion.bt_delete.clicked.connect(self.delete_patient)
 
         self.sub_tabs.currentChanged.connect(self.refresh_patient)
 
         self.sub_tabs.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.sub_tabs.setFixedWidth(600)
         
-        layout = QHBoxLayout()
-        layout.addStretch(1)
-        layout.addWidget(self.sub_tabs)
-        layout.addStretch(1)
+        lt = QHBoxLayout()
+        lt.addStretch(1)
+        lt.addWidget(self.sub_tabs)
+        lt.addStretch(1)
 
-        self.setLayout(layout)
+        self.setLayout(lt)
 
     def refresh_patient(self):
         model = self.get_model_data()
@@ -113,15 +114,15 @@ class UI_connected_patient(QWidget):
         super().__init__()
         self.__codePatient = "None"
 
-        label_logged_in_as = QLabel("Connected patient: ")
-        self.label_logged_in_user = QLabel(self.__codePatient)
-        self.layout_logged_in = QHBoxLayout()
-        self.layout_logged_in.addWidget(label_logged_in_as)
-        self.layout_logged_in.addWidget(self.label_logged_in_user)
+        lb_logged_in_as = QLabel("Connected patient: ")
+        self.lb_logged_in_user = QLabel(self.__codePatient)
+        self.lt_logged_in = QHBoxLayout()
+        self.lt_logged_in.addWidget(lb_logged_in_as)
+        self.lt_logged_in.addWidget(self.lb_logged_in_user)
 
     def set_codePatient(self, value):
         self.__codePatient = value
-        self.label_logged_in_user.setText(self.__codePatient)
+        self.lb_logged_in_user.setText(self.__codePatient)
 
     def get_codePatient(self):
         return self.__codePatient
@@ -136,78 +137,78 @@ class Creation(QWidget):
         parameters = Parameters()
         self.__data_patient = parameters.data_patient
 
-        self.label_first_name = QLabel("*Enter first name")
-        self.line_edit_first_name = QLineEdit()
-        self.line_edit_first_name.textChanged.connect(self.generate_code_patient)
-        self.line_edit_first_name.setSizePolicy(size_policy)
-        self.line_edit_first_name.setFixedWidth(300)
-        layout_first_name = QHBoxLayout()
-        layout_first_name.addWidget(self.label_first_name)
-        layout_first_name.addWidget(self.line_edit_first_name)
+        self.lb_first_name = QLabel("*Enter first name")
+        self.le_first_name = QLineEdit()
+        self.le_first_name.textChanged.connect(self.generate_code_patient)
+        self.le_first_name.setSizePolicy(size_policy)
+        self.le_first_name.setFixedWidth(300)
+        lt_first_name = QHBoxLayout()
+        lt_first_name.addWidget(self.lb_first_name)
+        lt_first_name.addWidget(self.le_first_name)
 
-        self.label_name = QLabel("*Enter name")
-        self.line_edit_name = QLineEdit()
-        self.line_edit_name.textChanged.connect(self.generate_code_patient)
-        self.line_edit_name.setSizePolicy(size_policy)
-        self.line_edit_name.setFixedWidth(300)
-        layout_name = QHBoxLayout()
-        layout_name.addWidget(self.label_name)
-        layout_name.addWidget(self.line_edit_name)
+        self.lb_name = QLabel("*Enter name")
+        self.le_name = QLineEdit()
+        self.le_name.textChanged.connect(self.generate_code_patient)
+        self.le_name.setSizePolicy(size_policy)
+        self.le_name.setFixedWidth(300)
+        lt_name = QHBoxLayout()
+        lt_name.addWidget(self.lb_name)
+        lt_name.addWidget(self.le_name)
 
-        self.label_date_of_birth = QLabel("*Select date of birth")
-        self.date_edit_date_of_birth = QDateEdit()
-        self.date_edit_date_of_birth.dateChanged.connect(self.generate_code_patient)
-        self.date_edit_date_of_birth.setSizePolicy(size_policy)
-        self.date_edit_date_of_birth.setFixedWidth(300)
-        self.date_edit_date_of_birth.setDisplayFormat("dd-MM-yyyy")
-        self.date_edit_date_of_birth.setCalendarPopup(True)
-        layout_date_of_birth = QHBoxLayout()
-        layout_date_of_birth.addWidget(self.label_date_of_birth)
-        layout_date_of_birth.addWidget(self.date_edit_date_of_birth)
+        self.lb_date_of_birth = QLabel("*Select date of birth")
+        self.de_date_of_birth = QDateEdit()
+        self.de_date_of_birth.dateChanged.connect(self.generate_code_patient)
+        self.de_date_of_birth.setSizePolicy(size_policy)
+        self.de_date_of_birth.setFixedWidth(300)
+        self.de_date_of_birth.setDisplayFormat("dd-MM-yyyy")
+        self.de_date_of_birth.setCalendarPopup(True)
+        lt_date_of_birth = QHBoxLayout()
+        lt_date_of_birth.addWidget(self.lb_date_of_birth)
+        lt_date_of_birth.addWidget(self.de_date_of_birth)
 
-        self.label_sex = QLabel("*Select sex")
-        self.combo_box_sex = QComboBox()
-        self.combo_box_sex.setSizePolicy(size_policy)
-        self.combo_box_sex.setFixedWidth(300)
-        self.combo_box_sex.addItem("M", 0)
-        self.combo_box_sex.addItem("F", 1)
-        self.combo_box_sex.setCurrentIndex(0)
-        layout_sex = QHBoxLayout()
-        layout_sex.addWidget(self.label_sex)
-        layout_sex.addWidget(self.combo_box_sex)
+        self.lb_sex = QLabel("*Select sex")
+        self.cb_sex = QComboBox()
+        self.cb_sex.setSizePolicy(size_policy)
+        self.cb_sex.setFixedWidth(300)
+        self.cb_sex.addItem("M", 0)
+        self.cb_sex.addItem("F", 1)
+        self.cb_sex.setCurrentIndex(0)
+        lt_sex = QHBoxLayout()
+        lt_sex.addWidget(self.lb_sex)
+        lt_sex.addWidget(self.cb_sex)
 
-        self.label_code_patient = QLabel("Code patient (generate)")
-        self.line_edit_code_patient = QLineEdit()
-        self.line_edit_code_patient.setSizePolicy(size_policy)
-        self.line_edit_code_patient.setFixedWidth(300)
-        self.line_edit_code_patient.setReadOnly(True)
-        self.line_edit_code_patient.setStyleSheet("background-color: lightgray;")
-        layout_code_patient = QHBoxLayout()
-        layout_code_patient.addWidget(self.label_code_patient)
-        layout_code_patient.addWidget(self.line_edit_code_patient)
+        self.lb_code_patient = QLabel("Code patient (generate)")
+        self.le_code_patient = QLineEdit()
+        self.le_code_patient.setSizePolicy(size_policy)
+        self.le_code_patient.setFixedWidth(300)
+        self.le_code_patient.setReadOnly(True)
+        self.le_code_patient.setStyleSheet("background-color: lightgray;")
+        lt_code_patient = QHBoxLayout()
+        lt_code_patient.addWidget(self.lb_code_patient)
+        lt_code_patient.addWidget(self.le_code_patient)
 
-        self.button_save_patient = QPushButton("Save patient")
-        self.button_save_patient.clicked.connect(self.save_patient)
+        self.bt_save_patient = QPushButton("Save patient")
+        self.bt_save_patient.clicked.connect(self.save_patient)
 
-        self.layout = QVBoxLayout()
-        self.layout.addLayout(layout_first_name)
-        self.layout.addLayout(layout_name)
-        self.layout.addLayout(layout_date_of_birth)
-        self.layout.addLayout(layout_sex)
-        self.layout.addLayout(layout_code_patient)
-        self.layout.addWidget(self.button_save_patient)
+        self.lt = QVBoxLayout()
+        self.lt.addLayout(lt_first_name)
+        self.lt.addLayout(lt_name)
+        self.lt.addLayout(lt_date_of_birth)
+        self.lt.addLayout(lt_sex)
+        self.lt.addLayout(lt_code_patient)
+        self.lt.addWidget(self.bt_save_patient)
 
-        self.setLayout(self.layout)
+        self.setLayout(self.lt)
 
     def generate_code_patient(self):
-        if len(self.line_edit_first_name.text()[:2]) >= 2 and len(self.line_edit_first_name.text()[:2]) >= 2:
-            self.line_edit_code_patient.setText(
-            self.line_edit_first_name.text()[:2] + 
-            self.line_edit_name.text()[:2] + 
-            self.date_edit_date_of_birth.text()[-2:]
+        if len(self.le_first_name.text()[:2]) >= 2 and len(self.le_first_name.text()[:2]) >= 2:
+            self.le_code_patient.setText(
+            self.le_first_name.text()[:2] + 
+            self.le_name.text()[:2] + 
+            self.de_date_of_birth.text()[-2:]
             )
     def save_patient_validator(self):
-        if self.line_edit_first_name.text() and self.line_edit_name.text() and  self.line_edit_code_patient.text():
+        if self.le_first_name.text() and self.le_name.text() and  self.le_code_patient.text():
             return True
         else:
             return False
@@ -216,17 +217,17 @@ class Creation(QWidget):
         if self.save_patient_validator():
             csv_recorder = CSV_recorder()
             csv_recorder.save_patient(self.__data_patient, 
-                self.line_edit_first_name.text(), 
-                self.line_edit_name.text(), 
-                self.combo_box_sex.currentText(),
-                self.date_edit_date_of_birth.text(), 
-                self.line_edit_code_patient.text(),
+                self.le_first_name.text(), 
+                self.le_name.text(), 
+                self.cb_sex.currentText(),
+                self.de_date_of_birth.text(), 
+                self.le_code_patient.text(),
                 datetime.now().strftime('%d-%m-%Y'))
             
             dlg = CustomDialog(message="Patient saved in Data_conf/data_patient.csv")
             dlg.exec()
 
-            self.createdPatientSignal.emit(self.line_edit_code_patient.text())
+            self.createdPatientSignal.emit(self.le_code_patient.text())
         else:
             dlg = CustomDialog(message="All the information are mandatory")
             dlg.exec()
@@ -238,23 +239,23 @@ class Connexion(QWidget):
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.button_refresh = QPushButton("Refresh")
-        self.button_connect = QPushButton("Connect")
-        self.button_delete = QPushButton("Delete")
+        self.bt_refresh = QPushButton("Refresh")
+        self.bt_connect = QPushButton("Connect")
+        self.bt_delete = QPushButton("Delete")
 
-        layout_vertical_button = QHBoxLayout()
-        layout_vertical_button.addWidget(self.button_refresh)
-        layout_vertical_button.addWidget(self.button_connect)
-        layout_vertical_button.addWidget(self.button_delete)
+        lt_vertical_bt = QHBoxLayout()
+        lt_vertical_bt.addWidget(self.bt_refresh)
+        lt_vertical_bt.addWidget(self.bt_connect)
+        lt_vertical_bt.addWidget(self.bt_delete)
 
         #self.table.resizeRowsToContents()
         self.__table_list_patient.resizeColumnsToContents()
 
-        layout_code_patient = QVBoxLayout()
-        layout_code_patient.addLayout(layout_vertical_button)
-        layout_code_patient.addWidget(self.__table_list_patient)
+        lt_code_patient = QVBoxLayout()
+        lt_code_patient.addLayout(lt_vertical_bt)
+        lt_code_patient.addWidget(self.__table_list_patient)
 
-        self.setLayout(layout_code_patient)
+        self.setLayout(lt_code_patient)
 
 class CsvTableModel(QStandardItemModel):
     def __init__(self, data, parent=None):
@@ -268,46 +269,46 @@ class Data(QWidget):
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.label_filter = QLabel("Select a filter")
+        self.lb_filter = QLabel("Select a filter")
         parameters = Parameters()
         self.__data_patient = parameters.data_patient
         
-        self.combo_box_filter = QComboBox()
-        self.combo_box_filter.setSizePolicy(size_policy)
-        self.combo_box_filter.setFixedWidth(300)
-        self.combo_box_filter.addItem("All", 0)
-        self.combo_box_filter.addItem("Target", 1)
+        self.cb_filter = QComboBox()
+        self.cb_filter.setSizePolicy(size_policy)
+        self.cb_filter.setFixedWidth(300)
+        self.cb_filter.addItem("All", 0)
+        self.cb_filter.addItem("Target", 1)
         self.load_patient_data()
-        self.combo_box_filter.setCurrentIndex(0)
+        self.cb_filter.setCurrentIndex(0)
         
-        self.button_apply_filter = QPushButton("Apply")
+        self.bt_apply_filter = QPushButton("Apply")
         dir_path = '.'
-        self.button_apply_filter.clicked.connect(lambda: self.apply_filter(dir_path))
+        self.bt_apply_filter.clicked.connect(lambda: self.apply_filter(dir_path))
 
-        layout_filter = QHBoxLayout()
-        layout_filter.addWidget(self.label_filter)
-        layout_filter.addWidget(self.combo_box_filter)
-        layout_filter.addWidget(self.button_apply_filter)
+        lt_filter = QHBoxLayout()
+        lt_filter.addWidget(self.lb_filter)
+        lt_filter.addWidget(self.cb_filter)
+        lt_filter.addWidget(self.bt_apply_filter)
 
         self.table = QTableView()
 
         #self.table.resizeRowsToContents()
         self.table.resizeColumnsToContents()
 
-        layout = QVBoxLayout()
-        layout.addLayout(layout_filter)
-        layout.addWidget(self.table)        
+        lt = QVBoxLayout()
+        lt.addLayout(lt_filter)
+        lt.addWidget(self.table)        
 
         self.apply_filter(dir_path)
 
-        self.setLayout(layout)
+        self.setLayout(lt)
 
     def load_patient_data(self):
         with open(self.__data_patient, 'r') as f:
             reader = csv.reader(f, delimiter=';')
             next(reader)
             for row in reader:
-                self.combo_box_filter.addItem(row[4])
+                self.cb_filter.addItem(row[4])
 
     def apply_filter(self, dir_path):
         #files = glob.glob(os.path.join(dir_path, '*.csv')) #'*MaSu*.csv'

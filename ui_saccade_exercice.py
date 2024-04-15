@@ -432,6 +432,13 @@ class UI_saccade(QWidget):
 
                 self.__saccade.set_csv_recorder(csv_recorder)
 
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Saccade_Target", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
                         self.lb_rec_img.width(),
@@ -456,6 +463,14 @@ class UI_saccade(QWidget):
                         self.lb_rec_img.width(),
                         self.lb_rec_img.height(),
                         Qt.KeepAspectRatio))
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Saccade_Pupil", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
             else:
                 dlg = CustomDialog(message="Pupil Capture not detected")
                 dlg.exec()
@@ -471,10 +486,24 @@ class UI_saccade(QWidget):
                     folder_recording_name + "/" +
                     file_recording_name + "_left")
 
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Saccade_Lens", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
             if self.__cam_right is not None:
                 self.__cam_right.start_recording(
                     folder_recording_name + "/" +
                     file_recording_name + "_right")
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    "Saccade_Lens", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
 
             self.lb_rec_img.setPixmap(
                 self.pp_rec.scaled(

@@ -10,6 +10,14 @@ class Screen_calibration(QWidget):
         super().__init__()
         self.setWindowTitle("Screen Calibration")
 
+        self.timer = QTimer()
+        # Set the timer to trigger after 60000 milliseconds (1 minute)
+        self.timer.setInterval(60000)
+        # Connect the timer's timeout signal to the close function
+        self.timer.timeout.connect(self.close)
+        # Start the timer
+        self.timer.start()
+
         screen = QDesktopWidget().availableGeometry(1)#QDesktopWidget().screenGeometry(1)
         self.__display_width = screen.width() 
         self.__display_height = screen.height()  

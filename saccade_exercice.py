@@ -33,11 +33,6 @@ class Saccade(QWidget):
         self.__timer.timeout.connect(self.__update)
         self.__time_step_GUI = 1000
 
-        self.timer_data = QTimer()
-        self.timer_data.timeout.connect(self.__record_data)
-        self.__time_step_data = 0.005
-        self.timer_data.start(self.__time_step_data)
-
         self.__is_running = False
         self.__nb_cycle = -1
         self.__cpt_cycle = 0
@@ -105,7 +100,7 @@ class Saccade(QWidget):
 
     def degrees_to_cm(self, angle_degrees):
         angle_radians = math.radians(angle_degrees)
-        return 2 * self.get_depth_from_config() * math.tan(angle_radians)
+        return self.get_depth_from_config() * math.tan(angle_radians)
 
     def get_csv_recorder(self):
         return self.__csv_recorder
@@ -171,6 +166,7 @@ class Saccade(QWidget):
 
     def stop_exo(self):
         self.__is_running = False
+        self.__is_recording = False
         if self.__pupil_labs.get_status() is not None:
             self.__pupil_labs.stop_record()
         self.__recording_label.clear()
@@ -185,14 +181,6 @@ class Saccade(QWidget):
             self.__y = self.__y_left_tmp
         self.__cpt_cycle = self.__cpt_cycle + 1
 
-    def __update(self):
-        self.__update_position()
-        if self.__nb_cycle < self.__cpt_cycle: 
-            self.stop_exo()
-
-        self.update()
-
-    def __record_data(self):
         if self.__is_recording:
             current_time = time.perf_counter()
             if self.__start_time is None:
@@ -203,3 +191,11 @@ class Saccade(QWidget):
                 round(self.__x, 2),
                 round(self.__y, 2)
             )
+
+    def __update(self):
+        self.__update_position()
+        if self.__nb_cycle < self.__cpt_cycle: 
+            self.stop_exo()
+
+        self.update()
+        

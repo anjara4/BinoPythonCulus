@@ -71,7 +71,7 @@ class UI_infinite(QWidget):
         self.sd_size.setSizePolicy(size_policy)
         self.sd_size.setFixedWidth(272)
         self.sd_size.setMinimum(3)
-        self.sd_size.setMaximum(7)
+        self.sd_size.setMaximum(10)
         self.sd_size.setSliderPosition(5)
         self.sd_size.valueChanged.connect(self.update_sd_size_value)
         self.lb_sd_size_value = QLabel()
@@ -404,6 +404,13 @@ class UI_infinite(QWidget):
             if self.__pupil_labs.get_status() is not None:
                 self.__pupil_labs.start_record(folder_recording_name)
 
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    self.get_exercice_name() + "_Pupil", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
                         self.lb_rec_img.width(),
@@ -422,6 +429,13 @@ class UI_infinite(QWidget):
                 csv_recorder.set_header()
 
                 self.__infinite.set_csv_recorder(csv_recorder)
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    self.get_exercice_name() + "_Target", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
 
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
@@ -448,10 +462,24 @@ class UI_infinite(QWidget):
                     folder_recording_name + "/" +
                     file_recording_name + "_left")
 
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    self.get_exercice_name() + "_Lens", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
+
             if self.__cam_right is not None:
                 self.__cam_right.start_recording(
                     folder_recording_name + "/" +
                     file_recording_name + "_right")
+
+                self.file_folder_gen.decription_rec(
+                    folder_recording_name + "/",
+                    self.get_exercice_name() + "_Lens", 
+                    self.__connected_patient.get_codePatient(), 
+                    self.__selected_config.get_name_config()
+                    )
 
             self.lb_rec_img.setPixmap(
                 self.pp_rec.scaled(

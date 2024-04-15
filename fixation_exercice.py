@@ -30,11 +30,6 @@ class Fixation(QWidget):
         self.__time_step_GUI = 0.01
         self.__timer.start(self.__time_step_GUI)
 
-        self.timer_data = QTimer()
-        self.timer_data.timeout.connect(self.__record_data)
-        self.__time_step_data = 0.005
-        self.timer_data.start(self.__time_step_data)
-
         self.__is_running = False
 
         self.__duration_exo = 1000
@@ -78,7 +73,8 @@ class Fixation(QWidget):
 
     def degrees_to_cm(self, angle_degrees):
         angle_radians = math.radians(angle_degrees)
-        return 2 * self.get_depth_from_config() * math.tan(angle_radians)
+        #return 2 * self.get_depth_from_config() * math.tan(angle_radians)
+        return self.get_depth_from_config() * math.tan(angle_radians)
 
     def scale_hor_pos(self):
         self.__hor_pos = self.__hor_pos  * -self.__ratio_pixel_cm 
@@ -159,15 +155,13 @@ class Fixation(QWidget):
 
     def stop_exo(self):
         self.__is_running = False
+        seld.__is_recording = False
         if self.__pupil_labs.get_status() is not None:
             self.__pupil_labs.stop_record()
         self.__recording_label.clear()
         self.close()
 
     def __update(self):
-        self.update()
-
-    def __record_data(self):
         if self.__is_recording:
             current_time = time.perf_counter()
             if self.__start_time is None:
@@ -178,3 +172,6 @@ class Fixation(QWidget):
                 round(self.__x, 2),
                 round(self.__y, 2)
             )
+
+        self.update()
+        

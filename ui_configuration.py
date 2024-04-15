@@ -7,6 +7,8 @@ from PyQt5.QtCore import QLocale
 import csv
 import pandas as pd
 
+from PyQt5.QtCore import pyqtSignal
+
 from ui_customDialog import CustomDialog 
 from csv_recorder import CSV_recorder
 from datetime import datetime
@@ -19,6 +21,8 @@ class UI_main_configuration(QWidget):
 
         self.__selected_config = selected_config
         self.__table_list_config = QTableView()
+        self.__table_list_config.setEditTriggers(QTableView.EditTrigger.NoEditTriggers)
+
         self.__model_data_config = QStandardItemModel()
 
         parameters = Parameters()
@@ -30,21 +34,23 @@ class UI_main_configuration(QWidget):
         self.sub_tabs.addTab(self.sub_tab_creation, "Creation")
         self.sub_tabs.addTab(self.sub_select_config, "SelectConfig")
 
+        self.sub_tab_creation.createdConfigSignal.connect(self.connect_new_created_config)
+
         self.sub_tabs.currentChanged.connect(self.refresh_config)
 
         self.sub_tabs.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.sub_tabs.setFixedWidth(800)
 
-        self.sub_select_config.button_refresh.clicked.connect(self.refresh_config)
-        self.sub_select_config.button_connect.clicked.connect(self.connect_config)
-        self.sub_select_config.button_delete.clicked.connect(self.delete_config)
+        self.sub_select_config.bt_refresh.clicked.connect(self.refresh_config)
+        self.sub_select_config.bt_connect.clicked.connect(self.connect_config)
+        self.sub_select_config.bt_delete.clicked.connect(self.delete_config)
         
-        layout = QHBoxLayout()
-        layout.addStretch(1)
-        layout.addWidget(self.sub_tabs)
-        layout.addStretch(1)
+        lt = QHBoxLayout()
+        lt.addStretch(1)
+        lt.addWidget(self.sub_tabs)
+        lt.addStretch(1)
 
-        self.setLayout(layout)
+        self.setLayout(lt)
 
     def refresh_config(self):
         model = self.get_model_data()
@@ -70,6 +76,9 @@ class UI_main_configuration(QWidget):
 
     def check_if_row_is_selectioned(self, indexes):
         return True if indexes else False
+
+    def connect_new_created_config(self, name_config):
+        self.__selected_config.set_name_config(name_config)
 
     def connect_config(self):
         if self.check_if_row_is_selectioned(self.__table_list_config.selectedIndexes()):
@@ -99,6 +108,8 @@ class UI_main_configuration(QWidget):
             dlg.exec()
 
 class Creation(QWidget):
+    createdConfigSignal = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
 
@@ -108,97 +119,97 @@ class Creation(QWidget):
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        label_name_config = QLabel("*Name config:")
-        self.line_edit_name_config = QLineEdit()
-        self.line_edit_name_config.setSizePolicy(size_policy)
-        self.line_edit_name_config.setFixedWidth(300)
-        layout_name_config = QHBoxLayout()
-        layout_name_config.addWidget(label_name_config)
-        layout_name_config.addWidget(self.line_edit_name_config)
+        lb_name_config = QLabel("*Name config:")
+        self.le_name_config = QLineEdit()
+        self.le_name_config.setSizePolicy(size_policy)
+        self.le_name_config.setFixedWidth(300)
+        lt_name_config = QHBoxLayout()
+        lt_name_config.addWidget(lb_name_config)
+        lt_name_config.addWidget(self.le_name_config)
 
-        label_depth = QLabel("*Depth (cm):")
-        self.line_edit_depth = QLineEdit()
-        self.line_edit_depth.setSizePolicy(size_policy)
-        self.line_edit_depth.setFixedWidth(300)
-        self.line_edit_depth.setValidator(QIntValidator())
-        layout_depth = QHBoxLayout()
-        layout_depth.addWidget(label_depth)
-        layout_depth.addWidget(self.line_edit_depth)
+        lb_depth = QLabel("*Depth (cm):")
+        self.le_depth = QLineEdit()
+        self.le_depth.setSizePolicy(size_policy)
+        self.le_depth.setFixedWidth(300)
+        self.le_depth.setValidator(QIntValidator())
+        lt_depth = QHBoxLayout()
+        lt_depth.addWidget(lb_depth)
+        lt_depth.addWidget(self.le_depth)
 
-        label_screen_width = QLabel("*Screen width (cm):")
-        self.line_edit_screen_width = QLineEdit()
-        self.line_edit_screen_width.setSizePolicy(size_policy)
-        self.line_edit_screen_width.setFixedWidth(300)
-        self.line_edit_screen_width.setValidator(QIntValidator())
-        layout_screen_width = QHBoxLayout()
-        layout_screen_width.addWidget(label_screen_width)
-        layout_screen_width.addWidget(self.line_edit_screen_width)
+        lb_screen_width = QLabel("*Screen width (cm):")
+        self.le_screen_width = QLineEdit()
+        self.le_screen_width.setSizePolicy(size_policy)
+        self.le_screen_width.setFixedWidth(300)
+        self.le_screen_width.setValidator(QIntValidator())
+        lt_screen_width = QHBoxLayout()
+        lt_screen_width.addWidget(lb_screen_width)
+        lt_screen_width.addWidget(self.le_screen_width)
 
-        label_screen_height = QLabel("*Screen height (cm):")
-        self.line_edit_screen_height = QLineEdit()
-        self.line_edit_screen_height.setSizePolicy(size_policy)
-        self.line_edit_screen_height.setFixedWidth(300)
-        self.line_edit_screen_height.setValidator(QIntValidator())
-        layout_screen_height = QHBoxLayout()
-        layout_screen_height.addWidget(label_screen_height)
-        layout_screen_height.addWidget(self.line_edit_screen_height)
+        lb_screen_height = QLabel("*Screen height (cm):")
+        self.le_screen_height = QLineEdit()
+        self.le_screen_height.setSizePolicy(size_policy)
+        self.le_screen_height.setFixedWidth(300)
+        self.le_screen_height.setValidator(QIntValidator())
+        lt_screen_height = QHBoxLayout()
+        lt_screen_height.addWidget(lb_screen_height)
+        lt_screen_height.addWidget(self.le_screen_height)
 
-        self.button_start_screen_calibration = QPushButton("Show Object")
-        self.button_start_screen_calibration.clicked.connect(self.start_screen_calibration)
-        self.button_stop_screen_calibration = QPushButton("Quit Object")
-        self.button_stop_screen_calibration.clicked.connect(self.stop_screen_calibration)
-        layout_button_screen_calibration = QHBoxLayout()
-        layout_button_screen_calibration.addWidget(self.button_start_screen_calibration)
-        layout_button_screen_calibration.addWidget(self.button_stop_screen_calibration)
+        self.bt_start_screen_calibration = QPushButton("Show Object")
+        self.bt_start_screen_calibration.clicked.connect(self.start_screen_calibration)
+        self.bt_stop_screen_calibration = QPushButton("Quit Object")
+        self.bt_stop_screen_calibration.clicked.connect(self.stop_screen_calibration)
+        lt_bt_screen_calibration = QHBoxLayout()
+        lt_bt_screen_calibration.addWidget(self.bt_start_screen_calibration)
+        lt_bt_screen_calibration.addWidget(self.bt_stop_screen_calibration)
 
         validator = QDoubleValidator()
         validator.setLocale(QLocale(QLocale.C))
-        label_size_object_cm = QLabel("*Write object width (cm):")
-        self.line_edit_size_object_cm = QLineEdit()
-        self.line_edit_size_object_cm.setSizePolicy(size_policy)
-        self.line_edit_size_object_cm.setFixedWidth(300)
-        self.line_edit_size_object_cm.setValidator(validator)
-        layout_size_object_cm = QHBoxLayout()
-        layout_size_object_cm.addWidget(label_size_object_cm)
-        layout_size_object_cm.addWidget(self.line_edit_size_object_cm)
+        lb_size_object_cm = QLabel("*Write object width (cm):")
+        self.le_size_object_cm = QLineEdit()
+        self.le_size_object_cm.setSizePolicy(size_policy)
+        self.le_size_object_cm.setFixedWidth(300)
+        self.le_size_object_cm.setValidator(validator)
+        lt_size_object_cm = QHBoxLayout()
+        lt_size_object_cm.addWidget(lb_size_object_cm)
+        lt_size_object_cm.addWidget(self.le_size_object_cm)
 
-        layout_screen_calibration = QVBoxLayout()
-        layout_screen_calibration.addLayout(layout_button_screen_calibration)
-        layout_screen_calibration.addLayout(layout_size_object_cm)
+        lt_screen_calibration = QVBoxLayout()
+        lt_screen_calibration.addLayout(lt_bt_screen_calibration)
+        lt_screen_calibration.addLayout(lt_size_object_cm)
 
         group_box_screen_calibration = QGroupBox("Screen calibration")
-        group_box_screen_calibration.setLayout(layout_screen_calibration)
+        group_box_screen_calibration.setLayout(lt_screen_calibration)
 
-        label_exe_selector = QLabel("*Select the path to PupilLabs")
-        self.line_edit_exe_selector = QLineEdit()
-        button_browse = QPushButton("Browse")
-        button_browse.clicked.connect(self.browse_files)
+        lb_exe_selector = QLabel("*Select the path to PupilLabs")
+        self.le_exe_selector = QLineEdit()
+        bt_browse = QPushButton("Browse")
+        bt_browse.clicked.connect(self.browse_files)
 
-        layout_exe_selector = QHBoxLayout()
-        layout_exe_selector.addWidget(label_exe_selector)
-        layout_exe_selector.addWidget(self.line_edit_exe_selector)
-        layout_exe_selector.addWidget(button_browse)
+        lt_exe_selector = QHBoxLayout()
+        lt_exe_selector.addWidget(lb_exe_selector)
+        lt_exe_selector.addWidget(self.le_exe_selector)
+        lt_exe_selector.addWidget(bt_browse)
 
-        self.button_save_configuration = QPushButton("Save configuration")
-        self.button_save_configuration.clicked.connect(self.save_configuration)
+        self.bt_save_configuration = QPushButton("Save configuration")
+        self.bt_save_configuration.clicked.connect(self.save_configuration)
         
-        layout = QVBoxLayout()
-        layout.addLayout(layout_name_config)
-        layout.addLayout(layout_depth)
-        layout.addLayout(layout_screen_width)
-        layout.addLayout(layout_screen_height)
-        layout.addWidget(group_box_screen_calibration)
-        layout.addLayout(layout_exe_selector)
-        layout.addWidget(self.button_save_configuration)
+        lt = QVBoxLayout()
+        lt.addLayout(lt_name_config)
+        lt.addLayout(lt_depth)
+        lt.addLayout(lt_screen_width)
+        lt.addLayout(lt_screen_height)
+        lt.addWidget(group_box_screen_calibration)
+        lt.addLayout(lt_exe_selector)
+        lt.addWidget(self.bt_save_configuration)
 
-        self.setLayout(layout)
+        self.setLayout(lt)
 
     def browse_files(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
         fileName, _ = QFileDialog.getOpenFileName(self, "QFileDialog.getOpenFileName()", "", "pupil_capture.exe", options=options)
         if fileName:
-            self.line_edit_exe_selector.setText(fileName)
+            self.le_exe_selector.setText(fileName)
 
     def start_screen_calibration(self):
         screen = QDesktopWidget().screenGeometry(1)
@@ -212,7 +223,7 @@ class Creation(QWidget):
             self.screen_calibration = None
 
     def save_configuration_validator(self):
-        if self.line_edit_name_config.text() and self.line_edit_depth.text() and self.line_edit_screen_width.text() and self.line_edit_screen_height.text() and self.line_edit_size_object_cm.text() and self.line_edit_exe_selector.text():
+        if self.le_name_config.text() and self.le_depth.text() and self.le_screen_width.text() and self.le_screen_height.text() and self.le_size_object_cm.text() and self.le_exe_selector.text():
             return True
         else:
             return False
@@ -221,15 +232,17 @@ class Creation(QWidget):
         if self.save_configuration_validator():
             csv_recorder = CSV_recorder()
             csv_recorder.save_configuration(self.__data_configuration,
-                self.line_edit_name_config.text(),
-                self.line_edit_depth.text(),
-                self.line_edit_screen_width.text(),
-                self.line_edit_screen_height.text(),
-                self.line_edit_size_object_cm.text(),
-                self.line_edit_exe_selector.text(),
+                self.le_name_config.text(),
+                self.le_depth.text(),
+                self.le_screen_width.text(),
+                self.le_screen_height.text(),
+                self.le_size_object_cm.text(),
+                self.le_exe_selector.text(),
                 datetime.now().strftime('%d-%m-%Y'))
             dlg = CustomDialog(message="Configuration saved in data_conf/data_configuration.csv")
             dlg.exec()
+
+            self.createdConfigSignal.emit(self.le_name_config.text())
         else:
             dlg = CustomDialog(message="All the information are mandatory")
             dlg.exec()
@@ -239,15 +252,15 @@ class Selected_config(QWidget):
         super().__init__()
         self.__name_config = "None"
 
-        label_name_config = QLabel("config name:")
-        self.label_config_selected_value = QLabel(self.__name_config)
-        self.layout_name_config = QHBoxLayout()
-        self.layout_name_config.addWidget(label_name_config)
-        self.layout_name_config.addWidget(self.label_config_selected_value)
+        lb_name_config = QLabel("config name:")
+        self.lb_config_selected_value = QLabel(self.__name_config)
+        self.lt_name_config = QHBoxLayout()
+        self.lt_name_config.addWidget(lb_name_config)
+        self.lt_name_config.addWidget(self.lb_config_selected_value)
 
     def set_name_config(self, value):
         self.__name_config = value
-        self.label_config_selected_value.setText(value)
+        self.lb_config_selected_value.setText(value)
 
     def get_name_config(self):
         return self.__name_config
@@ -260,19 +273,19 @@ class Select_config(QWidget):
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
-        self.button_refresh = QPushButton("Refresh")
-        self.button_connect = QPushButton("Connect")
-        self.button_delete = QPushButton("Delete")
+        self.bt_refresh = QPushButton("Refresh")
+        self.bt_connect = QPushButton("Connect")
+        self.bt_delete = QPushButton("Delete")
 
-        layout_vertical_button = QHBoxLayout()
-        layout_vertical_button.addWidget(self.button_refresh)
-        layout_vertical_button.addWidget(self.button_connect)
-        layout_vertical_button.addWidget(self.button_delete)
+        lt_vertical_bt = QHBoxLayout()
+        lt_vertical_bt.addWidget(self.bt_refresh)
+        lt_vertical_bt.addWidget(self.bt_connect)
+        lt_vertical_bt.addWidget(self.bt_delete)
 
         self.__table_list_config.resizeColumnsToContents()
 
-        layout = QVBoxLayout()
-        layout.addLayout(layout_vertical_button)
-        layout.addWidget(self.__table_list_config)
+        lt = QVBoxLayout()
+        lt.addLayout(lt_vertical_bt)
+        lt.addWidget(self.__table_list_config)
 
-        self.setLayout(layout)
+        self.setLayout(lt)

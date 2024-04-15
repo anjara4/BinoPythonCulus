@@ -1,10 +1,8 @@
 FirstName;Name;Sex;DateBirth;CodePatient;DateCreation
-Alice;Dupont;F;01-01-2000;AlDu00;23-01-2024
-Bob;Martin;M;15-03-1999;BoMa99;23-01-2024
-Charlie;Leroy;M;20-06-2001;ChLe01;23-01-2024
-David;Lopez;M;25-09-2002;DaLo02;23-01-2024
-Emma;Dubois;F;10-12-1998;EmDu98;23-01-2024
-Mario;Super;M;01-01-2000;MaSu00;23-01-2024
-Vincent;Nourrit;M;01-01-2000;ViNo00;07-02-2024
-Marion;Otheguy;F;01-01-2000;MaOt00;07-02-2024
-nobby;anjara;M;01-01-2000;noan00;27-03-2024
+Alice;Dupont;F;01/01/2000;AlDu00;23/01/2024
+Bob;Martin;M;15/03/1999;BoMa99;23/01/2024
+Charlie;Leroy;M;20/06/2001;ChLe01;23/01/2024
+David;Lopez;M;25/09/2002;DaLo02;23/01/2024
+Emma;Dubois;F;10/12/1998;EmDu98;23/01/2024
+albertine;duvert;F;01-02-2000;aldu00;10-04-2024
+alban;duverger;M;01-01-2000;aldu00;10-04-2024

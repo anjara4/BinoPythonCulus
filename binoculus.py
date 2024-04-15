@@ -28,8 +28,8 @@ class MainWindow(QMainWindow):
         tabs.addTab(tab4, "Visualization")
 
         layout_main = QVBoxLayout()
-        layout_main.addLayout(connected_patient.layout_logged_in)
-        layout_main.addLayout(selected_config.layout_name_config)
+        layout_main.addLayout(connected_patient.lt_logged_in)
+        layout_main.addLayout(selected_config.lt_name_config)
         layout_main.addWidget(tabs)
 
         widget_main = QWidget()
