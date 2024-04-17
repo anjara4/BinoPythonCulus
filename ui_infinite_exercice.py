@@ -99,7 +99,7 @@ class UI_infinite(QWidget):
         self.sd_time_step.setSizePolicy(size_policy)
         self.sd_time_step.setFixedWidth(268)
         self.sd_time_step.setMinimum(2)
-        self.sd_time_step.setMaximum(15)
+        self.sd_time_step.setMaximum(9)
         self.sd_time_step.setSliderPosition(5)
         self.sd_time_step.valueChanged.connect(self.update_sd_time_step_value)
         self.lb_sd_time_step_value = QLabel()
@@ -408,7 +408,9 @@ class UI_infinite(QWidget):
                     folder_recording_name + "/",
                     self.get_exercice_name() + "_Pupil", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    "time step: " + str(self.sd_time_step.value()*0.1)
                     )
 
                 self.lb_rec_img.setPixmap(
@@ -434,7 +436,9 @@ class UI_infinite(QWidget):
                     folder_recording_name + "/",
                     self.get_exercice_name() + "_Target", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    "time step: " + str(self.sd_time_step.value()*0.1)
                     )
 
                 self.lb_rec_img.setPixmap(
@@ -466,7 +470,9 @@ class UI_infinite(QWidget):
                     folder_recording_name + "/",
                     self.get_exercice_name() + "_Lens", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    "time step: " + str(self.sd_time_step.value()*0.1)
                     )
 
             if self.__cam_right is not None:
@@ -478,7 +484,9 @@ class UI_infinite(QWidget):
                     folder_recording_name + "/",
                     self.get_exercice_name() + "_Lens", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    "time step: " + str(self.sd_time_step.value()*0.1)
                     )
 
             self.lb_rec_img.setPixmap(
@@ -583,7 +591,9 @@ class UI_infinite(QWidget):
             self.__infinite = Infinite(
                 self.__selected_config,
                 self.lb_rec_img,
-                self.__pupil_labs
+                self.__pupil_labs,
+                self.__cam_left,
+                self.__cam_right
                 )
 
             if self.rb_false.isChecked():

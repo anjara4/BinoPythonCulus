@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget
 from PyQt5.QtWidgets import QWidget, QTabWidget, QVBoxLayout
 
 from ui_main_exercice import UI_main_excercice
@@ -39,6 +39,18 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(widget_main)
 
         self.resize(600, 400)
+
+        self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
+        print(QApplication.desktop().screen().rect().center(), self.rect().center())
+
+
+        # # Calculate the center point
+        # desktopRect = QApplication.desktop().availableGeometry(0)
+        # center = desktopRect.center()
+        # print(widget_main.width(), self.height()/2, tabs.frameGeometry().width())
+        # # Move the widget to the center
+        # self.move(center.x() - (widget_main.width()/2), center.y() - (widget_main.height()/2))
+
 
 app = QApplication([])
 w = MainWindow()

@@ -26,13 +26,14 @@ class Generation():
         file.write(data)
         file.close()
 
-    def decription_rec(self, folder_path, exercice_name, code_patient, name_config):
+    def decription_rec(self, folder_path, exercice_name, code_patient, name_config, size, other):
         now = datetime.now()
         date = "Date creation: " + now.strftime('%d-%m-%Y')
         time = "Time creation: " + now.strftime("%H") + "-" + now.strftime("%M") + "-" + now.strftime("%S")
         exo = "Name exo: " + exercice_name
         config = "Name config: " + name_config
         patient = "Code patient: " + code_patient
+        size_target = "Size target: " + str(size)
 
         self.write_into_text(
                             folder_path,
@@ -40,7 +41,9 @@ class Generation():
                             str(time) + "\n" +
                             str(exo) + "\n" +
                             str(config) + "\n" +
-                            str(patient)
+                            str(patient) + "\n" +
+                            str(size_target) + "\n" +
+                            str(other)
                             )
 
     def foldername_rec(self, exercice_name, code_patient):

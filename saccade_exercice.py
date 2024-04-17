@@ -14,13 +14,15 @@ from screen_calibration import Screen_calibration
 from pupil_labs import Pupil_labs
 
 class Saccade(QWidget):
-    def __init__(self, selected_config, recording_label, pupil_labs): 
+    def __init__(self, selected_config, recording_label, pupil_labs, cam_left, cam_right): 
         super().__init__()
         self.setWindowTitle("Saccade")
 
         self.__selected_config = selected_config
         self.__recording_label = recording_label 
         self.__pupil_labs = pupil_labs
+        self.__cam_left = cam_left
+        self.__cam_right = cam_right 
 
         screen = QDesktopWidget().screenGeometry(1)
         self.__display_width = screen.width() 
@@ -167,6 +169,12 @@ class Saccade(QWidget):
     def stop_exo(self):
         self.__is_running = False
         self.__is_recording = False
+
+        if self.__cam_left is not None:
+            self.__cam_left.stop_recording()
+        if self.__cam_right is not None:
+            self.__cam_right.stop_recording()
+
         if self.__pupil_labs.get_status() is not None:
             self.__pupil_labs.stop_record()
         self.__recording_label.clear()

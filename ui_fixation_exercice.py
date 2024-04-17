@@ -442,7 +442,10 @@ class UI_fixation(QWidget):
             self.__fixation = Fixation(
                 self.__selected_config,
                 self.lb_rec_img,
-                self.__pupil_labs)
+                self.__pupil_labs,
+                self.__cam_left,
+                self.__cam_right
+                )
 
             self.__fixation.set_selected_config(self.__selected_config)
             self.__fixation.set_color(QColor(self.cb_color.currentData()))
@@ -489,7 +492,9 @@ class UI_fixation(QWidget):
                     folder_recording_name + "/",
                     "Fixation_Target", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
                 self.lb_rec_img.setPixmap(
@@ -515,7 +520,9 @@ class UI_fixation(QWidget):
                     folder_recording_name + "/",
                     "Fixation_Pupil", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
                 self.lb_rec_img.setPixmap(
@@ -542,7 +549,9 @@ class UI_fixation(QWidget):
                     folder_recording_name + "/",
                     "Fixation_Lens", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
             else:
                 print("No video from the left camera")
@@ -556,7 +565,9 @@ class UI_fixation(QWidget):
                     folder_recording_name + "/",
                     "Fixation_Lens", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
             else:

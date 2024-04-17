@@ -1,5 +1,0 @@
-Date creation: 15-04-2024
-Time creation: 15-32-52
-Name exo: Saccade_Pupil
-Name config: conf5
-Code patient: AlDu00

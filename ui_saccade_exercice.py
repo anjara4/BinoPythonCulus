@@ -436,7 +436,9 @@ class UI_saccade(QWidget):
                     folder_recording_name + "/",
                     "Saccade_Target", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
                 self.lb_rec_img.setPixmap(
@@ -468,7 +470,9 @@ class UI_saccade(QWidget):
                     folder_recording_name + "/",
                     "Saccade_Pupil", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
             else:
@@ -490,7 +494,9 @@ class UI_saccade(QWidget):
                     folder_recording_name + "/",
                     "Saccade_Lens", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
             if self.__cam_right is not None:
@@ -502,7 +508,9 @@ class UI_saccade(QWidget):
                     folder_recording_name + "/",
                     "Saccade_Lens", 
                     self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config()
+                    self.__selected_config.get_name_config(),
+                    self.sd_size.value()/10,
+                    ""
                     )
 
             self.lb_rec_img.setPixmap(
@@ -608,7 +616,10 @@ class UI_saccade(QWidget):
             self.__saccade = Saccade(
                 self.__selected_config,
                 self.lb_rec_img,
-                self.__pupil_labs)
+                self.__pupil_labs,
+                self.__cam_left,
+                self.__cam_right
+                )
 
             self.__saccade.set_time_step_GUI(self.sd_saccade_time.value() * 1000) #convert in milisecond
             self.__saccade.set_selected_config(self.__selected_config)

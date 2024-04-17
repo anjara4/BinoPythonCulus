@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 
 class Fixation(QWidget):
-    def __init__(self, selected_config, recording_label, pupil_labs):
+    def __init__(self, selected_config, recording_label, pupil_labs, cam_left, cam_right):
         super().__init__()
         self.setWindowTitle("Fixation")
 
@@ -24,6 +24,8 @@ class Fixation(QWidget):
         self.__selected_config = selected_config
         self.__recording_label = recording_label
         self.__pupil_labs = pupil_labs
+        self.__cam_left = cam_left
+        self.__cam_right = cam_right 
 
         self.__timer = QTimer()
         self.__timer.timeout.connect(self.__update)
@@ -155,7 +157,13 @@ class Fixation(QWidget):
 
     def stop_exo(self):
         self.__is_running = False
-        seld.__is_recording = False
+        self.__is_recording = False
+
+        if self.__cam_left is not None:
+            self.__cam_left.stop_recording()
+        if self.__cam_right is not None:
+            self.__cam_right.stop_recording()
+
         if self.__pupil_labs.get_status() is not None:
             self.__pupil_labs.stop_record()
         self.__recording_label.clear()
