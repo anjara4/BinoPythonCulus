@@ -16,6 +16,8 @@ from ui_customDialog import CustomDialog
 from csv_recorder import CSV_recorder
 from PyQt5.QtCore import pyqtSignal
 
+import os
+
 
 class UI_fixation(QWidget):
     toggleSignal = pyqtSignal(bool)
@@ -503,6 +505,9 @@ class UI_fixation(QWidget):
                         self.lb_rec_img.height(),
                         Qt.KeepAspectRatio))
 
+                self.rec_description_text("Fixation_Target", folder_recording_name, file_recording_name)
+                self.rec_video_cam(os.getcwd(), "0000")
+
                 self.__fixation.set_is_recording(True)
             else:
                 dlg = CustomDialog(message="Connect to a patient")
@@ -525,6 +530,9 @@ class UI_fixation(QWidget):
                     ""
                     )
 
+                self.rec_description_text("Fixation_Pupil", folder_recording_name, file_recording_name)
+                self.rec_video_cam(os.getcwd(), "0000")
+
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
                         self.lb_rec_img.width(),
@@ -534,44 +542,37 @@ class UI_fixation(QWidget):
                 dlg = CustomDialog(message="Pupil Capture not detected")
                 dlg.exec()
 
+    def rec_video_cam(self, folder_recording_name, file_recording_name):
+        if self.__cam_left is not None:
+            self.__cam_left.start_recording(
+                folder_recording_name + "/" +
+                file_recording_name  + "_left"
+                )
+
+        if self.__cam_right is not None:
+            self.__cam_right.start_recording(
+                folder_recording_name + "/" +
+                file_recording_name  + "_right"
+                )
+
+    def rec_description_text(self, type_exo, folder_recording_name, file_recording_name):
+        self.file_folder_gen.decription_rec(
+            folder_recording_name + "/",
+            type_exo, 
+            self.__connected_patient.get_codePatient(), 
+            self.__selected_config.get_name_config(),
+            self.sd_size.value()/10,
+            ""
+            )
+
     def rec_lens(self, folder_recording_name, file_recording_name): 
         if self.check_condition_all():
             if self.__pupil_labs.get_status() is not None:
                 self.__pupil_labs.close_camera_eyes(0)
                 self.__pupil_labs.close_camera_eyes(1)
 
-            if self.__cam_left is not None:
-                self.__cam_left.start_recording(
-                    folder_recording_name + "/" +
-                    file_recording_name + "_left")
-
-                self.file_folder_gen.decription_rec(
-                    folder_recording_name + "/",
-                    "Fixation_Lens", 
-                    self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config(),
-                    self.sd_size.value()/10,
-                    ""
-                    )
-            else:
-                print("No video from the left camera")
-
-            if self.__cam_right is not None:
-                self.__cam_right.start_recording(
-                    folder_recording_name + "/" +
-                    file_recording_name + "_right")
-
-                self.file_folder_gen.decription_rec(
-                    folder_recording_name + "/",
-                    "Fixation_Lens", 
-                    self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config(),
-                    self.sd_size.value()/10,
-                    ""
-                    )
-
-            else:
-                print("No video from the right camera")
+            self.rec_video_cam(folder_recording_name, file_recording_name)
+            self.rec_description_text("Fixation_Lens", folder_recording_name, file_recording_name)
 
             self.lb_rec_img.setPixmap(
                 self.pp_rec.scaled(

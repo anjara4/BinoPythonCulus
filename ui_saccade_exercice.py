@@ -16,6 +16,8 @@ from csv_recorder import CSV_recorder
 from calibration import Calibration
 from PyQt5.QtCore import pyqtSignal
 
+import os
+
 class UI_saccade(QWidget):
     toggleSignal = pyqtSignal(bool)
 
@@ -432,14 +434,8 @@ class UI_saccade(QWidget):
 
                 self.__saccade.set_csv_recorder(csv_recorder)
 
-                self.file_folder_gen.decription_rec(
-                    folder_recording_name + "/",
-                    "Saccade_Target", 
-                    self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config(),
-                    self.sd_size.value()/10,
-                    ""
-                    )
+                self.rec_description_text("Saccade_Target", folder_recording_name, file_recording_name)
+                self.rec_video_cam(os.getcwd(), "0000")
 
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
@@ -466,18 +462,35 @@ class UI_saccade(QWidget):
                         self.lb_rec_img.height(),
                         Qt.KeepAspectRatio))
 
-                self.file_folder_gen.decription_rec(
-                    folder_recording_name + "/",
-                    "Saccade_Pupil", 
-                    self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config(),
-                    self.sd_size.value()/10,
-                    ""
-                    )
+                self.rec_description_text("Saccade_Target", folder_recording_name, file_recording_name)
+                self.rec_video_cam(os.getcwd(), "0000")
 
             else:
                 dlg = CustomDialog(message="Pupil Capture not detected")
                 dlg.exec()
+
+    def rec_video_cam(self, folder_recording_name, file_recording_name):
+        if self.__cam_left is not None:
+            self.__cam_left.start_recording(
+                folder_recording_name + "/" +
+                file_recording_name  + "_left"
+                )
+
+        if self.__cam_right is not None:
+            self.__cam_right.start_recording(
+                folder_recording_name + "/" +
+                file_recording_name  + "_right"
+                )
+
+    def rec_description_text(self, type_exo, folder_recording_name, file_recording_name):
+        self.file_folder_gen.decription_rec(
+            folder_recording_name + "/",
+            type_exo, 
+            self.__connected_patient.get_codePatient(), 
+            self.__selected_config.get_name_config(),
+            self.sd_size.value()/10,
+            ""
+            )
 
     def rec_lens(self, folder_recording_name, file_recording_name): 
         if self.check_condition_all():
@@ -485,33 +498,8 @@ class UI_saccade(QWidget):
                 self.__pupil_labs.close_camera_eyes(0)
                 self.__pupil_labs.close_camera_eyes(1)
 
-            if self.__cam_left is not None:
-                self.__cam_left.start_recording(
-                    folder_recording_name + "/" +
-                    file_recording_name + "_left")
-
-                self.file_folder_gen.decription_rec(
-                    folder_recording_name + "/",
-                    "Saccade_Lens", 
-                    self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config(),
-                    self.sd_size.value()/10,
-                    ""
-                    )
-
-            if self.__cam_right is not None:
-                self.__cam_right.start_recording(
-                    folder_recording_name + "/" +
-                    file_recording_name + "_right")
-
-                self.file_folder_gen.decription_rec(
-                    folder_recording_name + "/",
-                    "Saccade_Lens", 
-                    self.__connected_patient.get_codePatient(), 
-                    self.__selected_config.get_name_config(),
-                    self.sd_size.value()/10,
-                    ""
-                    )
+            self.rec_video_cam(folder_recording_name, file_recording_name)
+            self.rec_description_text("Saccade_Lens", folder_recording_name, file_recording_name)
 
             self.lb_rec_img.setPixmap(
                 self.pp_rec.scaled(
@@ -530,6 +518,7 @@ class UI_saccade(QWidget):
                 self.__connected_patient.get_codePatient(),
                 "Target.csv"
                 )
+
 
             self.launch_saccade()
             
