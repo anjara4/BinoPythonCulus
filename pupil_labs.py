@@ -8,6 +8,10 @@ import pandas as pd
 from ui_customDialog import CustomDialog 
 from parameters import Parameters
 
+
+import psutil
+import time
+
 import subprocess
 import zmq, msgpack
 
@@ -25,6 +29,37 @@ class Pupil_labs(QWidget):
         filtered_df = df[df['NameConf'] == self.__selected_config.get_name_config()]
 
         return filtered_df['PathPupilLabs'].values.item()
+
+    def findProcessIdByName(self, processName):
+        listOfProcessObjects = []
+        #Iterate over the all the running process
+        for proc in psutil.process_iter():
+           try:
+               pinfo = proc.as_dict(attrs=['pid', 'name', 'create_time'])
+               # Check if process name contains the given name string.
+               if processName.lower() in pinfo['name'].lower() :
+                   listOfProcessObjects.append(pinfo)
+           except (psutil.NoSuchProcess, psutil.AccessDenied , psutil.ZombieProcess) :
+               pass
+        return listOfProcessObjects
+
+    def stop_pupilLabs(self):
+        listOfProcessIds = self.findProcessIdByName('pupil_capture')
+
+        if len(listOfProcessIds) > 0:
+           for elem in listOfProcessIds:
+                processID = elem['pid']
+                #processName = elem['name']
+                #processCreationTime =  time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(elem['create_time']))
+                #print((processID ,processName,processCreationTime ))
+
+                try:
+                    process = psutil.Process(processID)
+                    process.terminate()
+                except Exception as e:
+                    print(f"could not stop pupil labs")
+
+        self.__pupil_labs_status = None
 
     def start_pupilLabs(self):
         if self.__selected_config.get_name_config() != "None":

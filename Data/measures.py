@@ -7,12 +7,14 @@ width_px, height_px = 1920, 1080
 width_cm, height_cm = 114, 64
 px_per_cm = max(width_px/width_cm, height_px/height_cm) #on prend la plus grosse erreur
 
-target_05 = pd.read_csv('InfiniteV_Target_AlDu00_Date19-04-2024_Time15-21-16_Target_TS0.5.csv', sep=';')
-target_09 = pd.read_csv('InfiniteV_Target_AlDu00_Date19-04-2024_Time15-20-28_Target_TS0.9.csv', sep=';')
-pupil_09 = pd.read_csv('Infini_Pupil_AlDu00_Date19-04-2024_Time15-20-07_Target_0.9.csv', sep=';')
-pupil_05 = pd.read_csv('Infini_Pupil_AlDu00_Date19-04-2024_Time15-19-34_Target_0.5.csv', sep=';')
-lens_09 = pd.read_csv('Infini_Lens_AlDu00_Date19-04-2024_Time15-18-30_Target_TS0.9.csv', sep=';')
-lens_05 = pd.read_csv('Infini_Lens_AlDu00_Date19-04-2024_Time15-17-43_Target_TS0.5.csv', sep=';')
+target_05 = pd.read_csv('InfiniteV_Target_AlDu00_Date22-04-2024_Time15-43-47_Target0.2.csv', sep=';')
+target_09 = pd.read_csv('InfiniteV_Target_AlDu00_Date22-04-2024_Time15-44-54_Target0.6.csv', sep=';')
+
+pupil_05 = pd.read_csv('Infini_Pupil_AlDu00_Date22-04-2024_Time15-49-13_Target0.2.csv', sep=';')
+pupil_09 = pd.read_csv('Infini_Pupil_AlDu00_Date22-04-2024_Time15-50-19_Target0.6.csv',sep=';')
+
+lens_05 = pd.read_csv('Infini_Lens_AlDu00_Date22-04-2024_Time15-45-52_Target0.2.csv', sep=';')
+lens_09 = pd.read_csv('Infini_Lens_AlDu00_Date22-04-2024_Time15-45-23_Target0.6.csv', sep=';')
 
 
 def get_mean_speed(data) :
@@ -32,11 +34,11 @@ def get_mean_speed(data) :
     return sum(distances_per_second[:-2])/(len(distances_per_second)-1)#on exclut la dernière seconde qui peut ne pas être complète
 
 print(tabulate([
-    ['Target', '0.5', get_mean_speed(target_05), get_mean_speed(target_05)/px_per_cm],
-    ['Target', '0.9', get_mean_speed(target_09), get_mean_speed(target_09)/px_per_cm ],
-    ['Pupil', '0.5', get_mean_speed(pupil_05), get_mean_speed(pupil_05)/px_per_cm],
-    ['Pupil', '0.9', get_mean_speed(pupil_09), get_mean_speed(pupil_09)/px_per_cm ],
-    ['Lens', '0.5', get_mean_speed(lens_05), get_mean_speed(lens_05)/px_per_cm],
-    ['lens', '0.9', get_mean_speed(lens_09), get_mean_speed(lens_09)/px_per_cm ]
+    ['Target', '0.2', get_mean_speed(target_05), get_mean_speed(target_05)/px_per_cm],
+    ['Target', '0.6', get_mean_speed(target_09), get_mean_speed(target_09)/px_per_cm ],
+    ['Pupil', '0.2', get_mean_speed(pupil_05), get_mean_speed(pupil_05)/px_per_cm],
+    ['Pupil', '0.6', get_mean_speed(pupil_09), get_mean_speed(pupil_09)/px_per_cm ],
+    ['Lens', '0.2', get_mean_speed(lens_05), get_mean_speed(lens_05)/px_per_cm],
+    ['lens', '0.6', get_mean_speed(lens_09), get_mean_speed(lens_09)/px_per_cm ]
     ],
     headers=['Type', 'TimeStep', 'px/s', 'cm/s'], tablefmt='orgtbl') )

@@ -47,12 +47,14 @@ class UI_saccade(QWidget):
         self.rb_group_mode = QButtonGroup()
         self.rb_group_mode.addButton(self.rb_mode_pupil)
         self.rb_group_mode.addButton(self.rb_mode_lens)
-        self.rb_group_mode.setExclusive(False)
+        self.rb_group_mode.setExclusive(True)
 
         self.rb_mode_pupil.setChecked(False)
         self.rb_mode_lens.setChecked(False)
+
         self.rb_mode_pupil.toggled.connect(self.mode_pupil)
         self.rb_mode_lens.toggled.connect(self.mode_lens)
+
         lt_mode = QHBoxLayout()
         lt_mode.addWidget(lb_mode)
         lt_mode.addWidget(self.rb_mode_pupil)
@@ -165,8 +167,15 @@ class UI_saccade(QWidget):
         lt_nb_cycle.addWidget(self.sd_nb_cycle)
         lt_nb_cycle.addWidget(self.lb_sd_nb_cycle_value)
 
-        bt_start_pupilLabs = QPushButton("Run Pupil Capture")
+        bt_start_pupilLabs = QPushButton("Start Pupil Capture")
         bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)
+
+        bt_stop_pupilLabs = QPushButton("Stop Pupil Capture")
+        bt_stop_pupilLabs.clicked.connect(self.stop_pupilLabs)
+
+        self.lt_bt_pupilLabs = QHBoxLayout()
+        self.lt_bt_pupilLabs.addWidget(bt_start_pupilLabs)
+        self.lt_bt_pupilLabs.addWidget(bt_stop_pupilLabs)
 
         self.bt_start_calibration_pupilLabs = QPushButton("Calibration Pupil")
         self.bt_start_calibration_pupilLabs.clicked.connect(self.start_calibration_pupilLabs)
@@ -190,7 +199,8 @@ class UI_saccade(QWidget):
                 "Saccade_target", 
                 self.__connected_patient.get_codePatient(),
                 "Target.csv"
-                )
+                ),
+            True
             )
         )
 
@@ -239,7 +249,7 @@ class UI_saccade(QWidget):
         self.lt.addLayout(lt_delta_ver)
         self.lt.addLayout(lt_auto_stop)
         self.lt.addLayout(lt_nb_cycle)
-        self.lt.addWidget(bt_start_pupilLabs)
+        self.lt.addLayout(self.lt_bt_pupilLabs)
         self.lt.addWidget(self.bt_launch_saccade)
         self.lt.addLayout(lt_mode)
         self.lt.addLayout(lt_bt_rec)
@@ -251,6 +261,12 @@ class UI_saccade(QWidget):
 
     def start_pupilLabs(self):
         self.__pupil_labs.start_pupilLabs()
+
+        self.__pupil_labs.open_camera_eyes(0)
+        self.__pupil_labs.open_camera_eyes(1)
+
+    def stop_pupilLabs(self):
+        self.__pupil_labs.stop_pupilLabs()
 
     def rec_video_calib_lens(self, cam, folder_recording_name, file_recording_name, position): 
         if cam is not None:
@@ -335,57 +351,36 @@ class UI_saccade(QWidget):
         return is_ok_selected_config and is_ok_connected_patient and is_pupil_labs_on
 
     def mode_pupil(self):
-        if self.check_condition_pupil():
-            if self.__pupil_labs.get_status() is None:
-                self.rb_mode_pupil.setChecked(False)
-                dlg = CustomDialog(message="PupilLab application not detected")
-                dlg.exec() 
-            else:
-                if self.rb_mode_pupil.isChecked():
-                    self.__pupil_labs.open_camera_eyes(0)
-                    self.__pupil_labs.open_camera_eyes(1)
+        self.bt_rec_pupil.setEnabled(True)
+        self.bt_rec_target_pupil.setEnabled(True)
+        self.bt_start_calibration_pupilLabs.setEnabled(True)
 
-                    self.rb_mode_pupil.setChecked(True)
-                    self.rb_mode_lens.setChecked(False)
+        self.bt_rec_lens.setEnabled(False)
+        self.bt_rec_target_lens.setEnabled(False)
+        self.bt_start_calibration_lens.setEnabled(False)   
 
-                    self.bt_rec_pupil.setEnabled(True)
-                    self.bt_rec_target_pupil.setEnabled(True)
-                    self.bt_start_calibration_pupilLabs.setEnabled(True)
+        if self.rb_mode_pupil.isChecked():
+            dlg = CustomDialog(message="Do not forget to start Pupil Labs")
+            dlg.exec()
 
-                    self.bt_rec_lens.setEnabled(False)
-                    self.bt_rec_target_lens.setEnabled(False)
-                    self.bt_start_calibration_lens.setEnabled(False)   
-
-                    self.toggleSignal.emit(False)               
-        else: 
-            self.rb_mode_pupil.setChecked(False)
+        self.toggleSignal.emit(False)           
 
     def mode_lens(self):
-        if self.check_condition_exo():
-            if self.rb_mode_lens.isChecked():
-                if self.__pupil_labs.get_status() is not None:
-                    self.__pupil_labs.close_camera_eyes(0)
-                    self.__pupil_labs.close_camera_eyes(1)
-
-                dlg = CustomDialog(message="Mode lens activated \n Refresh the camera if it is frozen")
-                dlg.exec()
-
-                self.rb_mode_lens.setChecked(True)
-                self.rb_mode_pupil.setChecked(False)
-
-                self.bt_rec_lens.setEnabled(True)
-                self.bt_rec_target_lens.setEnabled(True)
-                self.bt_start_calibration_lens.setEnabled(True)
+        self.bt_rec_lens.setEnabled(True)
+        self.bt_rec_target_lens.setEnabled(True)
+        self.bt_start_calibration_lens.setEnabled(True)
                     
-                self.bt_rec_pupil.setEnabled(False)
-                self.bt_rec_target_pupil.setEnabled(False)
-                self.bt_start_calibration_pupilLabs.setEnabled(False)
+        self.bt_rec_pupil.setEnabled(False)
+        self.bt_rec_target_pupil.setEnabled(False)
+        self.bt_start_calibration_pupilLabs.setEnabled(False)
 
-                self.toggleSignal.emit(True)
+        self.toggleSignal.emit(True)
 
-                self.refresh_camera
-        else: 
-            self.rb_mode_lens.setChecked(False)
+        if self.rb_mode_lens.isChecked():
+            dlg = CustomDialog(message="Do not forget to stop Pupil Labs \n Refresh the camera if it is frozen")
+            dlg.exec()
+
+        self.refresh_camera
 
     def refresh_camera(self):
         self.refresh_camera_left()
@@ -425,7 +420,7 @@ class UI_saccade(QWidget):
     def update_sd_delta_ver_value(self):
         self.lb_sd_delta_ver_value.setText(str(self.sd_delta_ver.value()))
 
-    def rec_target(self, folder_recording_name, file_recording_name):
+    def rec_target(self, folder_recording_name, file_recording_name, is_clicked):
         if self.__saccade is not None:
             if self.__connected_patient.get_codePatient() != "None":
                 csv_recorder = CSV_recorder()
@@ -435,7 +430,9 @@ class UI_saccade(QWidget):
                 self.__saccade.set_csv_recorder(csv_recorder)
 
                 self.rec_description_text("Saccade_Target", folder_recording_name, file_recording_name)
-                self.rec_video_cam(os.getcwd(), "0000")
+
+                if is_clicked:
+                    self.rec_video_cam(os.getcwd(), "0000") #Fake recording for processing time purpose
 
                 self.lb_rec_img.setPixmap(
                     self.pp_rec.scaled(
@@ -463,7 +460,7 @@ class UI_saccade(QWidget):
                         Qt.KeepAspectRatio))
 
                 self.rec_description_text("Saccade_Target", folder_recording_name, file_recording_name)
-                self.rec_video_cam(os.getcwd(), "0000")
+                self.rec_video_cam(os.getcwd(), "0000") #Fake recording for processing time purpose
 
             else:
                 dlg = CustomDialog(message="Pupil Capture not detected")
@@ -494,9 +491,7 @@ class UI_saccade(QWidget):
 
     def rec_lens(self, folder_recording_name, file_recording_name): 
         if self.check_condition_all():
-            if self.__pupil_labs.get_status() is not None:
-                self.__pupil_labs.close_camera_eyes(0)
-                self.__pupil_labs.close_camera_eyes(1)
+            self.__pupil_labs.stop_pupilLabs()
 
             self.rec_video_cam(folder_recording_name, file_recording_name)
             self.rec_description_text("Saccade_Lens", folder_recording_name, file_recording_name)
@@ -522,7 +517,7 @@ class UI_saccade(QWidget):
 
             self.launch_saccade()
             
-            self.rec_target(folder_recording_name, file_recording_name)
+            self.rec_target(folder_recording_name, file_recording_name, False)
             self.rec_pupil(folder_recording_name)
 
     def rec_target_lens(self):
@@ -538,7 +533,7 @@ class UI_saccade(QWidget):
 
             self.launch_saccade()
             
-            self.rec_target(folder_recording_name, file_recording_name + "Target.csv")
+            self.rec_target(folder_recording_name, file_recording_name + "Target.csv", False)
             self.rec_lens(folder_recording_name, file_recording_name)
 
     def stop_all(self):

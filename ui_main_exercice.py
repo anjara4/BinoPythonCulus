@@ -6,6 +6,8 @@ from ui_saccade_exercice import UI_saccade
 from ui_fixation_exercice import UI_fixation
 from ui_infinite_exercice import UI_infinite
 
+from ui_customDialog import CustomDialog
+
 from pupil_labs import Pupil_labs
 from cam_video import Camera
 
@@ -135,6 +137,7 @@ class UI_main_excercice(QWidget):
         self.bt_refresh_camera.setEnabled(enabled)
         self.lb_desc_cam_left.setEnabled(enabled)
         self.lb_desc_cam_right.setEnabled(enabled)
+
 
     def toggle_is_mode_pupil_saccade(self, enabled):
         self.toggle_is_mode(enabled)
