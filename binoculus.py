@@ -40,7 +40,8 @@ class MainWindow(QMainWindow):
 
         self.resize(600, 400)
 
-        self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
+        self.move(QApplication.desktop().availableGeometry().topLeft())
+        #self.move(QApplication.desktop().screen().rect().center()- self.rect().center())
         print(QApplication.desktop().screen().rect().center(), self.rect().center())
 
 
