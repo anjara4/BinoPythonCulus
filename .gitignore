@@ -1,6 +1,12 @@
 # Ignore all .csv files
 *.csv
 
+# Ignore all .avi files
+ *.avi
+
+# Ingore all data inside the data folder
+Data/
+
 # Ignore byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

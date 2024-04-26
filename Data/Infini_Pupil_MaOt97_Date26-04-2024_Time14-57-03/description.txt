@@ -1,7 +1,0 @@
-Date creation: 26-04-2024
-Time creation: 14-57-03
-Name exo: InfiniteV_Target_Fixation_Pupil
-Name config: tableau_labo
-Code patient: MaOt97
-Size target: 0.5
-time step: 0.6
