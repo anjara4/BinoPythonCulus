@@ -1,5 +1,9 @@
 # Binoculus
-This code is a Python and PyQt 5 implementation of Binoculus, which was originally developed using C# and Unity
+This code is a Python and PyQt 5 implementation of Binoculus or Orthoptica, 
+which was originally developed using C# and Unity.
+
+More information about Orthoptica is available here: 
+https://cdn.cahiers-ophtalmologie.fr/media/91ab08a042d2f06c2b05bf3201d02612.pdf
 
 ## Installation
 Clone the project in the repertory on your choice <br />
