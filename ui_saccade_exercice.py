@@ -350,7 +350,7 @@ class UI_saccade(QWidget):
         self.bt_start_calibration_lens.setEnabled(False)   
 
         if self.rb_mode_pupil.isChecked():
-            dlg = CustomDialog(message="Do not forget to start Pupil Capture")
+            dlg = CustomDialog(message="Do not forget to click on Start Pupil Capture")
             dlg.exec()
 
         self.toggleSignal.emit(False)           
@@ -370,7 +370,7 @@ class UI_saccade(QWidget):
         self.toggleSignal.emit(True)
 
         if self.rb_mode_lens.isChecked():
-            dlg = CustomDialog(message="Do not forget to stop Pupil Capture \n Refresh the camera if it is frozen")
+            dlg = CustomDialog(message="Do not forget to click on Stop Pupil Capture \n Refresh the camera if it is frozen")
             dlg.exec()
 
         self.refresh_camera
