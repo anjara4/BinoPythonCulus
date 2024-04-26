@@ -173,14 +173,14 @@ class UI_infinite(QWidget):
         lt_bt_calibration.addWidget(self.bt_start_calibration_pupilLabs)
         lt_bt_calibration.addWidget(self.bt_start_calibration_lens)
 
-        self.bt_launch_infinite = QPushButton("Run Infini")
+        self.bt_launch_infinite = QPushButton("Run Infinite")
         self.bt_launch_infinite.clicked.connect(self.launch_infini)
 
-        self.bt_rec_target_pupil = QPushButton("Run Target/Pupil")
+        self.bt_rec_target_pupil = QPushButton("Run Infinite/Pupil")
         self.bt_rec_target_pupil.clicked.connect(self.rec_target_pupil)
         self.bt_rec_target_pupil.setEnabled(False)
 
-        self.bt_rec_target_lens = QPushButton("Run Target/Lens")
+        self.bt_rec_target_lens = QPushButton("Run Infinite/Lens")
         self.bt_rec_target_lens.clicked.connect(self.rec_target_lens)
         self.bt_rec_target_lens.setEnabled(False)
 

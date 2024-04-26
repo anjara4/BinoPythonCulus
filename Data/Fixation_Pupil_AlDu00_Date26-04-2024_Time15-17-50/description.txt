@@ -1,0 +1,6 @@
+Date creation: 26-04-2024
+Time creation: 15-17-50
+Name exo: Fixation_Pupil
+Name config: tableau_labo
+Code patient: AlDu00
+Size target: 0.1

@@ -155,11 +155,11 @@ class UI_fixation(QWidget):
         self.bt_launch_fixation = QPushButton("Run Fixation")
         self.bt_launch_fixation.clicked.connect(self.launch_fixation)
 
-        self.bt_rec_target_pupil = QPushButton("Run Target/Pupil")
+        self.bt_rec_target_pupil = QPushButton("Run Fixation/Pupil")
         self.bt_rec_target_pupil.clicked.connect(self.rec_target_pupil)
         self.bt_rec_target_pupil.setEnabled(False)
 
-        self.bt_rec_target_lens = QPushButton("Run Target/Lens")
+        self.bt_rec_target_lens = QPushButton("Run Fixation/Lens")
         self.bt_rec_target_lens.clicked.connect(self.rec_target_lens)
         self.bt_rec_target_lens.setEnabled(False)
 
@@ -195,11 +195,8 @@ class UI_fixation(QWidget):
         lt_duration_exo.addWidget(self.lb_sd_duration_exo_value)
 
         lt_bt_rec = QHBoxLayout()
-        #lt_bt_rec.addWidget(self.bt_rec_target)
-        #lt_bt_rec.addWidget(self.bt_rec_pupil)
         lt_bt_rec.addWidget(self.bt_launch_fixation)
         lt_bt_rec.addWidget(self.bt_rec_target_pupil)
-        #lt_bt_rec.addWidget(self.bt_rec_lens)
         lt_bt_rec.addWidget(self.bt_rec_target_lens)        
 
         self.lt = QVBoxLayout()

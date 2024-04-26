@@ -181,5 +181,8 @@ class Fixation(QWidget):
                 round(self.__y, 2)
             )
 
+            if elapsed_time >= self.__duration_exo:
+                self.stop_exo()
+
         self.update()
         
