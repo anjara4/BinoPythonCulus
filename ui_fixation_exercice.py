@@ -44,20 +44,27 @@ class UI_fixation(QWidget):
         lb_mode = QLabel("Mode?")
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
+        self.rb_mode_test = QRadioButton("Test", self)
+
         self.rb_mode_pupil.setChecked(False)
         self.rb_mode_lens.setChecked(False)
+        self.rb_mode_test.setChecked(True)
 
         self.rb_group_mode = QButtonGroup()
         self.rb_group_mode.addButton(self.rb_mode_pupil)
         self.rb_group_mode.addButton(self.rb_mode_lens)
+        self.rb_group_mode.addButton(self.rb_mode_test)
         self.rb_group_mode.setExclusive(True)
 
         self.rb_mode_pupil.toggled.connect(self.mode_pupil)
         self.rb_mode_lens.toggled.connect(self.mode_lens)
+        self.rb_mode_test.toggled.connect(self.mode_test)
+        
         lt_mode = QHBoxLayout()
         lt_mode.addWidget(lb_mode)
         lt_mode.addWidget(self.rb_mode_pupil)
         lt_mode.addWidget(self.rb_mode_lens)
+        lt_mode.addWidget(self.rb_mode_test)
 
         lb_color = QLabel("Select target color")
         self.cb_color = QComboBox()
@@ -121,21 +128,25 @@ class UI_fixation(QWidget):
         lt_ver_pos.addWidget(self.sd_ver_pos)
         lt_ver_pos.addWidget(self.lb_sd_ver_pos_value)
 
-        bt_start_pupilLabs = QPushButton("Start Pupil Capture")
-        bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)
+        self.bt_start_pupilLabs = QPushButton("Start Pupil Capture")
+        self.bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)
+        self.bt_start_pupilLabs.setEnabled(False)
 
-        bt_stop_pupilLabs = QPushButton("Stop Pupil Capture")
-        bt_stop_pupilLabs.clicked.connect(self.stop_pupilLabs)
+        self.bt_stop_pupilLabs = QPushButton("Stop Pupil Capture")
+        self.bt_stop_pupilLabs.clicked.connect(self.stop_pupilLabs)
+        self.bt_stop_pupilLabs.setEnabled(False)
 
         self.lt_bt_pupilLabs = QHBoxLayout()
-        self.lt_bt_pupilLabs.addWidget(bt_start_pupilLabs)
-        self.lt_bt_pupilLabs.addWidget(bt_stop_pupilLabs)
+        self.lt_bt_pupilLabs.addWidget(self.bt_start_pupilLabs)
+        self.lt_bt_pupilLabs.addWidget(self.bt_stop_pupilLabs)
 
         self.bt_start_calibration_pupilLabs = QPushButton("Calibration Pupil")
         self.bt_start_calibration_pupilLabs.clicked.connect(self.start_calibration_pupilLabs)
+        self.bt_start_calibration_pupilLabs.setEnabled(False)
 
         self.bt_start_calibration_lens = QPushButton("Calibration Lens")
         self.bt_start_calibration_lens.clicked.connect(self.start_calibration_lens)
+        self.bt_start_calibration_lens.setEnabled(False)
 
         lt_bt_calibration = QHBoxLayout()
         lt_bt_calibration.addWidget(self.bt_start_calibration_pupilLabs)
@@ -144,54 +155,21 @@ class UI_fixation(QWidget):
         self.bt_launch_fixation = QPushButton("Run Fixation")
         self.bt_launch_fixation.clicked.connect(self.launch_fixation)
 
-        self.bt_rec_target = QPushButton("Rec Target")
-        self.bt_rec_target.clicked.connect(lambda: self.rec_target(
-            self.file_folder_gen.foldername_rec(
-                "Fixation_Target", 
-                self.__connected_patient.get_codePatient()),
-            self.file_folder_gen.filename_rec(
-                "Fixation_Target", 
-                self.__connected_patient.get_codePatient(),
-                "Target.csv"
-                ),
-            True
-            )
-        )
-
-        self.bt_rec_pupil = QPushButton("Rec Pupil")
-        self.bt_rec_pupil.clicked.connect(lambda: self.rec_pupil(
-            self.file_folder_gen.foldername_rec(
-                "Fixation_Pupil", 
-                self.__connected_patient.get_codePatient())
-            )
-        )
-
-        self.bt_rec_lens = QPushButton("Rec Lens")
-        self.bt_rec_lens.clicked.connect(lambda: self.rec_lens(
-            self.file_folder_gen.foldername_rec(
-                "Fixation_Lens", 
-                self.__connected_patient.get_codePatient()),
-            self.file_folder_gen.filename_rec(
-                "Fixation_Lens", 
-                self.__connected_patient.get_codePatient(),
-                ""
-                )
-            )
-        )
-
         self.bt_rec_target_pupil = QPushButton("Run Target/Pupil")
         self.bt_rec_target_pupil.clicked.connect(self.rec_target_pupil)
+        self.bt_rec_target_pupil.setEnabled(False)
 
         self.bt_rec_target_lens = QPushButton("Run Target/Lens")
         self.bt_rec_target_lens.clicked.connect(self.rec_target_lens)
+        self.bt_rec_target_lens.setEnabled(False)
 
-        bt_stop = QPushButton("Stop")
+        bt_stop = QPushButton("Stop Run")
         bt_stop.clicked.connect(self.stop_all)
 
         lb_auto_stop = QLabel("Automatic stop?")
         self.rb_true = QRadioButton("True", self)
         self.rb_false = QRadioButton("False", self)
-        self.rb_false.setChecked(True)
+        self.rb_true.setChecked(True)
         self.rb_false.toggled.connect(self.create_form_automatic_stop)
         lt_auto_stop = QHBoxLayout()
         lt_auto_stop.addWidget(lb_auto_stop)
@@ -204,8 +182,8 @@ class UI_fixation(QWidget):
         self.sd_duration_exo.setFixedWidth(266)
         self.sd_duration_exo.setMinimum(1)
         self.sd_duration_exo.setMaximum(500)
-        self.sd_duration_exo.setSliderPosition(10)
-        self.sd_duration_exo.setEnabled(False)
+        self.sd_duration_exo.setSliderPosition(15)
+        self.sd_duration_exo.setEnabled(True)
         self.sd_duration_exo.valueChanged.connect(self.update_sd_duration_exo_value)
         self.lb_sd_duration_exo_value = QLabel()
         self.lb_sd_duration_exo_value.setSizePolicy(size_policy)
@@ -217,10 +195,11 @@ class UI_fixation(QWidget):
         lt_duration_exo.addWidget(self.lb_sd_duration_exo_value)
 
         lt_bt_rec = QHBoxLayout()
-        lt_bt_rec.addWidget(self.bt_rec_target)
-        lt_bt_rec.addWidget(self.bt_rec_pupil)
+        #lt_bt_rec.addWidget(self.bt_rec_target)
+        #lt_bt_rec.addWidget(self.bt_rec_pupil)
+        lt_bt_rec.addWidget(self.bt_launch_fixation)
         lt_bt_rec.addWidget(self.bt_rec_target_pupil)
-        lt_bt_rec.addWidget(self.bt_rec_lens)
+        #lt_bt_rec.addWidget(self.bt_rec_lens)
         lt_bt_rec.addWidget(self.bt_rec_target_lens)        
 
         self.lt = QVBoxLayout()
@@ -230,9 +209,8 @@ class UI_fixation(QWidget):
         self.lt.addLayout(lt_ver_pos)
         self.lt.addLayout(lt_auto_stop)
         self.lt.addLayout(lt_duration_exo)
-        self.lt.addLayout(self.lt_bt_pupilLabs)
-        self.lt.addWidget(self.bt_launch_fixation)
         self.lt.addLayout(lt_mode)
+        self.lt.addLayout(self.lt_bt_pupilLabs)
         self.lt.addLayout(lt_bt_rec)
         self.lt.addWidget(bt_stop)
         self.lt.addWidget(self.lb_rec_img)
@@ -330,37 +308,58 @@ class UI_fixation(QWidget):
 
         return is_ok_selected_config and is_ok_connected_patient and is_pupil_labs_on
 
+    def mode_test(self):
+        self.bt_launch_fixation.setEnabled(True)
+
+        self.bt_start_pupilLabs.setEnabled(False)
+        self.bt_stop_pupilLabs.setEnabled(False)
+
+        self.bt_rec_target_pupil.setEnabled(False)
+        self.bt_start_calibration_pupilLabs.setEnabled(False)
+
+        self.bt_rec_target_lens.setEnabled(False)
+        self.bt_start_calibration_lens.setEnabled(False)   
+
+        self.toggleSignal.emit(True) 
+
     def mode_pupil(self):
-        self.bt_rec_pupil.setEnabled(True)
+        self.bt_launch_fixation.setEnabled(False)
+
+        self.bt_start_pupilLabs.setEnabled(True)
+        self.bt_stop_pupilLabs.setEnabled(False)
+
         self.bt_rec_target_pupil.setEnabled(True)
         self.bt_start_calibration_pupilLabs.setEnabled(True)
 
-        self.bt_rec_lens.setEnabled(False)
         self.bt_rec_target_lens.setEnabled(False)
         self.bt_start_calibration_lens.setEnabled(False)   
 
         if self.rb_mode_pupil.isChecked():
-            dlg = CustomDialog(message="Do not forget to start Pupil Labs")
+            dlg = CustomDialog(message="Do not forget to start Pupil Capture")
             dlg.exec()
 
         self.toggleSignal.emit(False)           
 
     def mode_lens(self):
-        self.bt_rec_lens.setEnabled(True)
+        self.bt_launch_fixation.setEnabled(False)
+
+        self.bt_start_pupilLabs.setEnabled(False)
+        self.bt_stop_pupilLabs.setEnabled(True)
+
         self.bt_rec_target_lens.setEnabled(True)
         self.bt_start_calibration_lens.setEnabled(True)
                     
-        self.bt_rec_pupil.setEnabled(False)
         self.bt_rec_target_pupil.setEnabled(False)
         self.bt_start_calibration_pupilLabs.setEnabled(False)
 
         self.toggleSignal.emit(True)
 
         if self.rb_mode_lens.isChecked():
-            dlg = CustomDialog(message="Do not forget to stop Pupil Labs \n Refresh the camera if it is frozen")
+            dlg = CustomDialog(message="Do not forget to stop Pupil Capture \n Refresh the camera if it is frozen")
             dlg.exec()
 
         self.refresh_camera
+
 
     def refresh_camera(self):
         self.refresh_camera_left()
@@ -515,7 +514,7 @@ class UI_fixation(QWidget):
             dlg = CustomDialog(message="Start fixation first")
             dlg.exec()
 
-    def rec_pupil(self, folder_recording_name):
+    def rec_pupil(self, folder_recording_name, file_recording_name):
         if self.check_condition_all():
             if self.__pupil_labs.get_status() is not None:
                 self.__pupil_labs.start_record(folder_recording_name)
@@ -592,7 +591,7 @@ class UI_fixation(QWidget):
 
             self.launch_fixation()
             self.rec_target(folder_recording_name, file_recording_name, False)
-            self.rec_pupil(folder_recording_name)
+            self.rec_pupil(folder_recording_name, file_recording_name)
 
     def rec_target_lens(self):
         if self.check_condition_all():
