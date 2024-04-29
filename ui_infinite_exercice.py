@@ -347,23 +347,6 @@ class UI_infinite(QWidget):
             dlg = CustomDialog(message="Do not forget to click on Stop Pupil Capture \n Refresh the camera if it is frozen")
             dlg.exec()
 
-        self.refresh_camera
-
-
-    def refresh_camera(self):
-        self.refresh_camera_left()
-        self.refresh_camera_right()        
-
-    def refresh_camera_left(self):
-        if self.__cam_left is not None:
-            self.__cam_left.stop_recording()
-            self.__cam_left.start_thread()
-
-    def refresh_camera_right(self):
-        if self.__cam_right is not None:
-            self.__cam_right.stop_recording()
-            self.__cam_right.start_thread()
-
     def get_exercice_name(self):
         if (self.cb_direction.currentIndex() == 0): # index==0 -> is_vertical=True
             return "InfiniteV_Target"
@@ -481,18 +464,6 @@ class UI_infinite(QWidget):
             "time step: " + str(self.sd_time_step.value()*self.scale_time_step)
             )
 
-    def rec_lens(self, folder_recording_name, file_recording_name): 
-        if self.check_condition_all():
-
-            self.rec_video_cam(folder_recording_name, file_recording_name)
-            self.rec_description_text("Lens", folder_recording_name, file_recording_name)
-
-            self.lb_rec_img.setPixmap(
-                self.pp_rec.scaled(
-                    self.lb_rec_img.width(),
-                    self.lb_rec_img.height(),
-                    Qt.KeepAspectRatio))
-
     def rec_target_pupil(self):
         if self.check_condition_all():
             folder_recording_name = self.file_folder_gen.foldername_rec(
@@ -508,6 +479,18 @@ class UI_infinite(QWidget):
             
             self.rec_target(folder_recording_name, file_recording_name, False)
             self.rec_pupil(folder_recording_name, file_recording_name)
+
+    def rec_lens(self, folder_recording_name, file_recording_name): 
+        if self.check_condition_all():
+
+            self.rec_video_cam(folder_recording_name, file_recording_name)
+            self.rec_description_text("Lens", folder_recording_name, file_recording_name)
+
+            self.lb_rec_img.setPixmap(
+                self.pp_rec.scaled(
+                    self.lb_rec_img.width(),
+                    self.lb_rec_img.height(),
+                    Qt.KeepAspectRatio))
 
     def rec_target_lens(self):
         if self.check_condition_all():

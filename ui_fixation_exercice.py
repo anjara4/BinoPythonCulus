@@ -355,23 +355,6 @@ class UI_fixation(QWidget):
             dlg = CustomDialog(message="Do not forget to click on Stop Pupil Capture \n Refresh the camera if it is frozen")
             dlg.exec()
 
-        self.refresh_camera
-
-
-    def refresh_camera(self):
-        self.refresh_camera_left()
-        self.refresh_camera_right()        
-
-    def refresh_camera_left(self):
-        if self.__cam_left is not None:
-            self.__cam_left.stop_recording()
-            self.__cam_left.start_thread()
-
-    def refresh_camera_right(self):
-        if self.__cam_right is not None:
-            self.__cam_right.stop_recording()
-            self.__cam_right.start_thread()
-
     def create_form_automatic_stop(self):
         if self.rb_false.isChecked():
             self.sd_duration_exo.setEnabled(False)
@@ -560,21 +543,6 @@ class UI_fixation(QWidget):
             ""
             )
 
-    def rec_lens(self, folder_recording_name, file_recording_name): 
-        if self.check_condition_all():
-            self.__pupil_labs.stop_pupilLabs()
-
-            print("rec lens")
-
-            self.rec_video_cam(folder_recording_name, file_recording_name)
-            self.rec_description_text("Fixation_Lens", folder_recording_name, file_recording_name)
-
-            self.lb_rec_img.setPixmap(
-                self.pp_rec.scaled(
-                    self.lb_rec_img.width(),
-                    self.lb_rec_img.height(),
-                    Qt.KeepAspectRatio))
-
     def rec_target_pupil(self):
         if self.check_condition_all():
             folder_recording_name = self.file_folder_gen.foldername_rec(
@@ -589,6 +557,19 @@ class UI_fixation(QWidget):
             self.launch_fixation()
             self.rec_target(folder_recording_name, file_recording_name, False)
             self.rec_pupil(folder_recording_name, file_recording_name)
+
+    def rec_lens(self, folder_recording_name, file_recording_name): 
+        if self.check_condition_all():
+            self.__pupil_labs.stop_pupilLabs()
+
+            self.rec_video_cam(folder_recording_name, file_recording_name)
+            self.rec_description_text("Fixation_Lens", folder_recording_name, file_recording_name)
+
+            self.lb_rec_img.setPixmap(
+                self.pp_rec.scaled(
+                    self.lb_rec_img.width(),
+                    self.lb_rec_img.height(),
+                    Qt.KeepAspectRatio))
 
     def rec_target_lens(self):
         if self.check_condition_all():
@@ -609,7 +590,7 @@ class UI_fixation(QWidget):
     def stop_all(self):
         if self.__pupil_labs.get_status() is not None:
             self.__pupil_labs.stop_record()
-
+            
         self.lb_rec_img.clear()
 
         if self.__fixation is not None:
