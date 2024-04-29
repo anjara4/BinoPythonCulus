@@ -2,7 +2,7 @@
 *.csv
 
 # Ignore all .avi files
- *.avi
+*.avi
 
 # Ingore all data inside the data folder
 Data/
