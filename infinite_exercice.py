@@ -270,8 +270,7 @@ class Infinite(QWidget):
             )
 
     def __update(self):
-        if self.__is_running:
-            self.__update_position()
+        self.__update_position()
 
         self.update()
         

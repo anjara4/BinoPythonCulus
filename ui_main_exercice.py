@@ -19,6 +19,8 @@ class UI_main_excercice(QWidget):
 
         self.__pupil_labs = Pupil_labs(self.__selected_config)
 
+        self.__pupil_labs.stop_pupilLabs()
+
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.lb_exposure_time = QLabel("Select exposure time")
         #lb_exposure_time.setSizePolicy(size_policy)
@@ -124,6 +126,8 @@ class UI_main_excercice(QWidget):
         lt = QHBoxLayout()
         lt.addLayout(lt_exo)
         lt.addLayout(lt_window_right)
+
+        self.toggle_is_mode(False)
 
         self.setLayout(lt)
 

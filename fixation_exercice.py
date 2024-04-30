@@ -54,6 +54,7 @@ class Fixation(QWidget):
         self.__csv_recorder = None
         self.__is_recording = False
         self.__start_time = None
+        self.elapsed_time = 0
 
     def get_selected_config(self):
         return self.__selected_config
@@ -174,12 +175,15 @@ class Fixation(QWidget):
             current_time = time.perf_counter()
             if self.__start_time is None:
                 self.__start_time = current_time
-            elapsed_time = current_time - self.__start_time
+            self.elapsed_time = current_time - self.__start_time
             self.get_csv_recorder().record(
-                round(elapsed_time, 2),
+                round(self.elapsed_time, 2),
                 round(self.__x, 2),
                 round(self.__y, 2)
             )
+
+        if self.elapsed_time >= self.__duration_exo:
+            self.stop_exo()
 
         self.update()
         

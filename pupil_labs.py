@@ -66,8 +66,6 @@ class Pupil_labs(QWidget):
             if self.__pupil_labs_status is None or self.__pupil_labs_status.poll() is not None:
                 try:
                     self.__pupil_labs_status = subprocess.Popen([self.get_path_pupilLabs()])
-                    dlg = CustomDialog(message="Pupil capture launched, it might tike a few seconds")
-                    dlg.exec()
                 except FileNotFoundError:
                      dlg = CustomDialog(message="Invalid path to PupilLabs executable")
                      dlg.exec()
