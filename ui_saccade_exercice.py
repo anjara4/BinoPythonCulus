@@ -41,29 +41,29 @@ class UI_saccade(QWidget):
         self.pp_rec = QPixmap(parameters.image_recording)
 
         lb_mode = QLabel("Mode?")
+        self.rb_mode_test = QRadioButton("Test", self)
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
-        self.rb_mode_test = QRadioButton("Test", self)
         
         self.rb_mode_pupil.setChecked(False)
         self.rb_mode_lens.setChecked(False)
         self.rb_mode_test.setChecked(True)
 
         self.rb_group_mode = QButtonGroup()
+        self.rb_group_mode.addButton(self.rb_mode_test)
         self.rb_group_mode.addButton(self.rb_mode_pupil)
         self.rb_group_mode.addButton(self.rb_mode_lens)
-        self.rb_group_mode.addButton(self.rb_mode_test)
         self.rb_group_mode.setExclusive(True)
 
+        self.rb_mode_test.toggled.connect(self.mode_test)
         self.rb_mode_pupil.toggled.connect(self.mode_pupil)
         self.rb_mode_lens.toggled.connect(self.mode_lens)
-        self.rb_mode_test.toggled.connect(self.mode_test)
         
         lt_mode = QHBoxLayout()
         lt_mode.addWidget(lb_mode)
+        lt_mode.addWidget(self.rb_mode_test)
         lt_mode.addWidget(self.rb_mode_pupil)
         lt_mode.addWidget(self.rb_mode_lens)
-        lt_mode.addWidget(self.rb_mode_test)
 
         lb_color = QLabel("Select target color")
         self.cb_color = QComboBox()
