@@ -32,3 +32,6 @@ This will free up system resources and enhance overall performance.
 Launch the application a few minutes before starting your experiment. 
 Click on various buttons and explore different modes. 
 This preloading process allows the application to be cached in memory, resulting in smoother performance during the experiment.
+
+4. Button, Radio Button, and Tab Behavior: When you interact with buttons, radio buttons, or tabs, they will turn blue to indicate activation. 
+There is no need to repeatedly click them once they have changed color.
