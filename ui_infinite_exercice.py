@@ -327,8 +327,6 @@ class UI_infinite(QWidget):
         self.toggleSignal.emit(False)           
 
     def mode_lens(self):
-        self.__pupil_labs.stop_pupilLabs()
-
         self.bt_launch_infinite.setEnabled(False)
 
         self.bt_start_pupilLabs.setEnabled(False)
@@ -338,6 +336,8 @@ class UI_infinite(QWidget):
                     
         self.bt_rec_target_pupil.setEnabled(False)
         self.bt_start_calibration_pupilLabs.setEnabled(False)
+
+        self.__pupil_labs.stop_pupilLabs()
 
         self.toggleSignal.emit(True)
 

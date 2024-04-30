@@ -53,11 +53,11 @@ class Pupil_labs(QWidget):
                 #processCreationTime =  time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(elem['create_time']))
                 #print((processID ,processName,processCreationTime ))
 
-                try:
-                    process = psutil.Process(processID)
-                    process.terminate()
-                except Exception as e:
-                    print(f"could not stop pupil labs")
+                #try:
+                process = psutil.Process(processID)
+                process.terminate()
+                #except Exception as e:
+                #    print(f"could not stop pupil labs")
 
         self.__pupil_labs_status = None
 

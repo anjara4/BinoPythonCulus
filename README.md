@@ -17,3 +17,18 @@ Launch your  virtual environnment and run !
 ```sh
 python binoculus.py
 ```
+
+## User Manual
+To ensure optimal performance, follow these steps:
+
+1. Connect to a Power Source: 
+Plug your PC into an electrical outlet to ensure uninterrupted power supply during usage.
+
+2. Close Unnecessary Applications and Windows: 
+Before running the application, close any unnecessary programs and windows. 
+This will free up system resources and enhance overall performance.
+
+3. Preload the Application: 
+Launch the application a few minutes before starting your experiment. 
+Click on various buttons and explore different modes. 
+This preloading process allows the application to be cached in memory, resulting in smoother performance during the experiment.

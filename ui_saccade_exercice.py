@@ -354,8 +354,6 @@ class UI_saccade(QWidget):
         self.toggleSignal.emit(False)           
 
     def mode_lens(self):
-        self.__pupil_labs.stop_pupilLabs()
-
         self.bt_launch_saccade.setEnabled(False)
 
         self.bt_start_pupilLabs.setEnabled(False)
@@ -365,6 +363,7 @@ class UI_saccade(QWidget):
         self.bt_rec_target_pupil.setEnabled(False)
         self.bt_start_calibration_pupilLabs.setEnabled(False)
 
+        self.__pupil_labs.stop_pupilLabs()
         self.toggleSignal.emit(True)
 
         if self.rb_mode_lens.isChecked():
