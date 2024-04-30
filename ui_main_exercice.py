@@ -142,6 +142,8 @@ class UI_main_excercice(QWidget):
         self.lb_desc_cam_left.setEnabled(enabled)
         self.lb_desc_cam_right.setEnabled(enabled)
 
+        if enabled: 
+            self.refresh_camera_main()
 
     def toggle_is_mode_pupil_saccade(self, enabled):
         self.toggle_is_mode(enabled)

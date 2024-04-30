@@ -132,13 +132,12 @@ class UI_fixation(QWidget):
         self.bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)
         self.bt_start_pupilLabs.setEnabled(False)
 
-        self.bt_stop_pupilLabs = QPushButton("Stop Pupil Capture")
-        self.bt_stop_pupilLabs.clicked.connect(self.stop_pupilLabs)
-        self.bt_stop_pupilLabs.setEnabled(False)
+        #self.bt_stop_pupilLabs = QPushButton("Stop Pupil Capture")
+        #self.bt_stop_pupilLabs.clicked.connect(self.stop_pupilLabs)
+        #self.bt_stop_pupilLabs.setEnabled(False)
 
         self.lt_bt_pupilLabs = QHBoxLayout()
         self.lt_bt_pupilLabs.addWidget(self.bt_start_pupilLabs)
-        self.lt_bt_pupilLabs.addWidget(self.bt_stop_pupilLabs)
 
         self.bt_start_calibration_pupilLabs = QPushButton("Calibration Pupil")
         self.bt_start_calibration_pupilLabs.clicked.connect(self.start_calibration_pupilLabs)
@@ -309,7 +308,6 @@ class UI_fixation(QWidget):
         self.bt_launch_fixation.setEnabled(True)
 
         self.bt_start_pupilLabs.setEnabled(False)
-        self.bt_stop_pupilLabs.setEnabled(False)
 
         self.bt_rec_target_pupil.setEnabled(False)
         self.bt_start_calibration_pupilLabs.setEnabled(False)
@@ -323,7 +321,6 @@ class UI_fixation(QWidget):
         self.bt_launch_fixation.setEnabled(False)
 
         self.bt_start_pupilLabs.setEnabled(True)
-        self.bt_stop_pupilLabs.setEnabled(False)
 
         self.bt_rec_target_pupil.setEnabled(True)
         self.bt_start_calibration_pupilLabs.setEnabled(True)
@@ -338,10 +335,11 @@ class UI_fixation(QWidget):
         self.toggleSignal.emit(False)           
 
     def mode_lens(self):
+        self.__pupil_labs.stop_pupilLabs()
+
         self.bt_launch_fixation.setEnabled(False)
 
         self.bt_start_pupilLabs.setEnabled(False)
-        self.bt_stop_pupilLabs.setEnabled(True)
 
         self.bt_rec_target_lens.setEnabled(True)
         self.bt_start_calibration_lens.setEnabled(True)
