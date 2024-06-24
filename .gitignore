@@ -1,0 +1,17 @@
+# Ignore all .csv files
+*.csv
+
+# Ignore all .avi files
+*.avi
+
+# Ignore all data inside the data folder
+Data/
+**__pycache__/
+
+# Ignore byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# But don't ignore these .csv files
+!/Data_conf/data_configuration.csv
+!/Data_conf/data_patient.csv
