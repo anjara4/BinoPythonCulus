@@ -13,7 +13,7 @@ import time
 from datetime import datetime
 
 class Fixation(QWidget):
-    def __init__(self, selected_config, recording_label, pupil_labs, cam_left, cam_right):
+    def __init__(self, selected_config, recording_label, pupil_labs, cam_left, cam_right, central_spot_size=0.0):
         super().__init__()
         self.setWindowTitle("Fixation")
 
@@ -55,6 +55,9 @@ class Fixation(QWidget):
         self.__is_recording = False
         self.__start_time = None
         self.elapsed_time = 0
+
+        self.set_ratio_pixel_cm()
+        self.__central_spot = self.degrees_to_cm(float(central_spot_size)) * self.__ratio_pixel_cm
 
     def get_selected_config(self):
         return self.__selected_config
@@ -152,9 +155,16 @@ class Fixation(QWidget):
     def paintEvent(self, event):
         if self.__is_running:
             painter = QPainter(self)
+            
             painter.setPen(QPen(Qt.black, 2, Qt.SolidLine))
             painter.setBrush(QBrush(self.get_color(), Qt.SolidPattern))
             painter.drawEllipse(self.__x, self.__y, self.get_size(), self.get_size())
+
+            if self.__central_spot > 0:
+                painter.setPen(QPen(Qt.white, 2, Qt.SolidLine))
+                painter.setBrush(QBrush(Qt.white, Qt.SolidPattern))
+                painter.drawEllipse((self.__display_width / 2 - self.__central_spot/2), (self.__display_height/2 - self.__central_spot/2), self.__central_spot, self.__central_spot)
+            
 
     def stop_exo(self):
         self.__is_running = False

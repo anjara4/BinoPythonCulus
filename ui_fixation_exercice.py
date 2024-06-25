@@ -31,6 +31,7 @@ class UI_fixation(QWidget):
         self.__pupil_labs = pupil_labs
 
         self.__fixation = None
+        self.logMar_to_deg = {'1.3': '1.6', '0.1':'0.08'}
         self.file_folder_gen = Generation()
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -41,7 +42,7 @@ class UI_fixation(QWidget):
         parameters = Parameters()
         self.pp_rec = QPixmap(parameters.image_recording)
 
-        lb_mode = QLabel("Mode?")
+        lb_mode = QLabel("Mode:")
         self.rb_mode_test = QRadioButton("Test", self)
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
@@ -78,7 +79,7 @@ class UI_fixation(QWidget):
         lt_color.addWidget(lb_color)
         lt_color.addWidget(self.cb_color)
 
-        lb_size = QLabel("Select target size (°)")
+        """lb_size = QLabel("Select target size (°)")
         self.sd_size = QSlider(Qt.Horizontal, self)
         self.sd_size.setSizePolicy(size_policy)
         self.sd_size.setFixedWidth(272)
@@ -92,7 +93,13 @@ class UI_fixation(QWidget):
         lt_size = QHBoxLayout()
         lt_size.addWidget(lb_size)
         lt_size.addWidget(self.sd_size)
-        lt_size.addWidget(self.lb_sd_size_value)
+        lt_size.addWidget(self.lb_sd_size_value)"""
+        lb_size = QLabel("Target size:")
+        lb_size_value = QLabel(list(self.logMar_to_deg.keys())[0]+ ' logMar')
+        self.lb_sd_size_value = QLabel(self.logMar_to_deg[list(self.logMar_to_deg.keys())[0]])
+        lt_size = QHBoxLayout()
+        lt_size.addWidget(lb_size)
+        lt_size.addWidget(lb_size_value)
 
         lb_hor_pos = QLabel("Select delta X from center (°)")
         self.sd_hor_pos = QSlider(Qt.Horizontal, self)
@@ -420,7 +427,8 @@ class UI_fixation(QWidget):
                 self.lb_rec_img,
                 self.__pupil_labs,
                 self.__cam_left,
-                self.__cam_right
+                self.__cam_right,
+                self.logMar_to_deg["0.1"]
                 )
 
             self.__fixation.set_selected_config(self.__selected_config)
