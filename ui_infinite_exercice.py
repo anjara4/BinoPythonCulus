@@ -28,6 +28,7 @@ class UI_infinite(QWidget):
         self.__pupil_labs = pupil_labs
 
         self.__infinite = None
+        self.logMar_to_deg = {'1.3': '1.67', '1.2':'1.33','1.1':'1.04','1.0':'0.83','0.9':'0.67','0.8':'0.525','0.7':'0.42','0.6':'0.33','0.5':'0.27','0.4':'0.21','0.3':'0.17','0.2':'0.13','0.1':'0.10','0.0':'0.08'}
         self.file_folder_gen = Generation()
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -38,7 +39,7 @@ class UI_infinite(QWidget):
         parameters = Parameters()
         self.pp_rec = QPixmap(parameters.image_recording)
 
-        lb_mode = QLabel("Mode?")
+        lb_mode = QLabel("Mode :")
         self.rb_mode_test = QRadioButton("Test", self)
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
@@ -75,17 +76,17 @@ class UI_infinite(QWidget):
         lt_color.addWidget(lb_color)
         lt_color.addWidget(self.cb_color)
 
-        lb_size = QLabel("Select target size (°)")
+        lb_size = QLabel("Select target size (logMar)")
         self.sd_size = QSlider(Qt.Horizontal, self)
         self.sd_size.setSizePolicy(size_policy)
-        self.sd_size.setFixedWidth(272)
-        self.sd_size.setMinimum(3)
-        self.sd_size.setMaximum(10)
-        self.sd_size.setSliderPosition(5)
+        self.sd_size.setFixedWidth(260)
+        self.sd_size.setMinimum(0)
+        self.sd_size.setMaximum(13)
+        self.sd_size.setSliderPosition(8)
         self.sd_size.valueChanged.connect(self.update_sd_size_value)
         self.lb_sd_size_value = QLabel()
         self.lb_sd_size_value.setSizePolicy(size_policy)
-        self.lb_sd_size_value.setFixedWidth(20)
+        self.lb_sd_size_value.setFixedWidth(25)
         self.lb_sd_size_value.setText(str(self.sd_size.value()/10))
         lt_size = QHBoxLayout()
         lt_size.addWidget(lb_size)
@@ -106,14 +107,14 @@ class UI_infinite(QWidget):
         lb_time_step = QLabel("Select time step (ms)")
         self.sd_time_step = QSlider(Qt.Horizontal, self)
         self.sd_time_step.setSizePolicy(size_policy)
-        self.sd_time_step.setFixedWidth(268)
+        self.sd_time_step.setFixedWidth(260)
         self.sd_time_step.setMinimum(1)
         self.sd_time_step.setMaximum(60)
         self.sd_time_step.setSliderPosition(1)
         self.sd_time_step.valueChanged.connect(self.update_sd_time_step_value)
         self.lb_sd_time_step_value = QLabel()
         self.lb_sd_time_step_value.setSizePolicy(size_policy)
-        self.lb_sd_time_step_value.setFixedWidth(24)
+        self.lb_sd_time_step_value.setFixedWidth(25)
         self.scale_time_step = 0.01
         self.lb_sd_time_step_value.setText(str(self.sd_time_step.value()*self.scale_time_step))
         lt_time_step = QHBoxLayout()
@@ -134,7 +135,7 @@ class UI_infinite(QWidget):
         lb_nb_cycle_exo = QLabel("Nb infini cycle")
         self.sd_nb_cycle_exo = QSlider(Qt.Horizontal, self)
         self.sd_nb_cycle_exo.setSizePolicy(size_policy)
-        self.sd_nb_cycle_exo.setFixedWidth(272)
+        self.sd_nb_cycle_exo.setFixedWidth(260)
         self.sd_nb_cycle_exo.setMinimum(1)
         self.sd_nb_cycle_exo.setMaximum(50)
         self.sd_nb_cycle_exo.setSliderPosition(1)
@@ -142,7 +143,7 @@ class UI_infinite(QWidget):
         self.sd_nb_cycle_exo.valueChanged.connect(self.update_sd_nb_cycle_exo_value)
         self.lb_sd_nb_cycle_exo_value = QLabel()
         self.lb_sd_nb_cycle_exo_value.setSizePolicy(size_policy)
-        self.lb_sd_nb_cycle_exo_value.setFixedWidth(15)
+        self.lb_sd_nb_cycle_exo_value.setFixedWidth(25)
         self.lb_sd_nb_cycle_exo_value.setText(str(self.sd_nb_cycle_exo.value()))
         lt_nb_cycle_exo = QHBoxLayout()
         lt_nb_cycle_exo.addWidget(lb_nb_cycle_exo)
@@ -592,7 +593,7 @@ class UI_infinite(QWidget):
             self.__infinite.set_ratio_pixel_cm()
             self.__infinite.set_size(
                 self.__infinite.degrees_to_cm(
-                    float(self.lb_sd_size_value.text()
+                    float(self.logMar_to_deg[self.lb_sd_size_value.text()]
                     )
                 ) 
             )

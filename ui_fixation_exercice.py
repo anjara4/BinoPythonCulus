@@ -31,7 +31,7 @@ class UI_fixation(QWidget):
         self.__pupil_labs = pupil_labs
 
         self.__fixation = None
-        self.logMar_to_deg = {'1.3': '1.6', '0.1':'0.08'}
+        self.logMar_to_deg = {'1.3': '1.67', '1.2':'1.33','1.1':'1.04','1.0':'0.83','0.9':'0.67','0.8':'0.525','0.7':'0.42','0.6':'0.33','0.5':'0.27','0.4':'0.21','0.3':'0.17','0.2':'0.13','0.1':'0.10','0.0':'0.08'}
         self.file_folder_gen = Generation()
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -79,39 +79,35 @@ class UI_fixation(QWidget):
         lt_color.addWidget(lb_color)
         lt_color.addWidget(self.cb_color)
 
-        """lb_size = QLabel("Select target size (°)")
+        lb_size = QLabel("Select target size (logMar)")
         self.sd_size = QSlider(Qt.Horizontal, self)
         self.sd_size.setSizePolicy(size_policy)
-        self.sd_size.setFixedWidth(272)
-        self.sd_size.setMinimum(1)
-        self.sd_size.setMaximum(10)
+        self.sd_size.setFixedWidth(260)
+        self.sd_size.setMinimum(0)
+        self.sd_size.setMaximum(13)
+        self.sd_size.setSliderPosition(13)
         self.sd_size.valueChanged.connect(self.update_sd_size_value)
         self.lb_sd_size_value = QLabel()
         self.lb_sd_size_value.setSizePolicy(size_policy)
-        self.lb_sd_size_value.setFixedWidth(18)
+        self.lb_sd_size_value.setFixedWidth(25)
         self.lb_sd_size_value.setText(str(self.sd_size.value()/10))
         lt_size = QHBoxLayout()
         lt_size.addWidget(lb_size)
         lt_size.addWidget(self.sd_size)
-        lt_size.addWidget(self.lb_sd_size_value)"""
-        lb_size = QLabel("Target size:")
-        lb_size_value = QLabel(list(self.logMar_to_deg.keys())[0]+ ' logMar')
-        self.lb_sd_size_value = QLabel(self.logMar_to_deg[list(self.logMar_to_deg.keys())[0]])
-        lt_size = QHBoxLayout()
-        lt_size.addWidget(lb_size)
-        lt_size.addWidget(lb_size_value)
+        lt_size.addWidget(self.lb_sd_size_value)
+
 
         lb_hor_pos = QLabel("Select delta X from center (°)")
         self.sd_hor_pos = QSlider(Qt.Horizontal, self)
         self.sd_hor_pos.setSizePolicy(size_policy)
-        self.sd_hor_pos.setFixedWidth(270)
+        self.sd_hor_pos.setFixedWidth(260)
         self.sd_hor_pos.setMinimum(-10)
         self.sd_hor_pos.setMaximum(10)
         self.sd_hor_pos.setSliderPosition(0)
         self.sd_hor_pos.valueChanged.connect(self.update_sd_hor_pos_value)
         self.lb_sd_hor_pos_value = QLabel()
         self.lb_sd_hor_pos_value.setSizePolicy(size_policy)
-        self.lb_sd_hor_pos_value.setFixedWidth(18)
+        self.lb_sd_hor_pos_value.setFixedWidth(25)
         self.lb_sd_hor_pos_value.setText(str(self.sd_hor_pos.value()))
         lt_hor_pos = QHBoxLayout()
         lt_hor_pos.addWidget(lb_hor_pos)
@@ -121,14 +117,14 @@ class UI_fixation(QWidget):
         lb_ver_pos = QLabel("Select delta y from center (°)")
         self.sd_ver_pos = QSlider(Qt.Horizontal, self)
         self.sd_ver_pos.setSizePolicy(size_policy)
-        self.sd_ver_pos.setFixedWidth(270)
+        self.sd_ver_pos.setFixedWidth(260)
         self.sd_ver_pos.setMinimum(-10)
         self.sd_ver_pos.setMaximum(10)
         self.sd_ver_pos.setSliderPosition(0)
         self.sd_ver_pos.valueChanged.connect(self.update_sd_ver_pos_value)
         self.lb_sd_ver_pos_value = QLabel()
         self.lb_sd_ver_pos_value.setSizePolicy(size_policy)
-        self.lb_sd_ver_pos_value.setFixedWidth(18)
+        self.lb_sd_ver_pos_value.setFixedWidth(25)
         self.lb_sd_ver_pos_value.setText(str(self.sd_ver_pos.value()))
         lt_ver_pos = QHBoxLayout()
         lt_ver_pos.addWidget(lb_ver_pos)
@@ -422,21 +418,30 @@ class UI_fixation(QWidget):
     def launch_fixation(self):
         self.stop_all()
         if self.check_condition_exo():
-            self.__fixation = Fixation(
-                self.__selected_config,
-                self.lb_rec_img,
-                self.__pupil_labs,
-                self.__cam_left,
-                self.__cam_right,
-                self.logMar_to_deg["0.1"]
-                )
+            if float(self.lb_sd_size_value.text()) > 0.8 : 
+                self.__fixation = Fixation(
+                    self.__selected_config,
+                    self.lb_rec_img,
+                    self.__pupil_labs,
+                    self.__cam_left,
+                    self.__cam_right,
+                    self.logMar_to_deg["0.1"]
+                    )
+            else:
+                self.__fixation = Fixation(
+                    self.__selected_config,
+                    self.lb_rec_img,
+                    self.__pupil_labs,
+                    self.__cam_left,
+                    self.__cam_right
+                    )
 
             self.__fixation.set_selected_config(self.__selected_config)
             self.__fixation.set_color(QColor(self.cb_color.currentData()))
             self.__fixation.set_ratio_pixel_cm()
             self.__fixation.set_size(
                 self.__fixation.degrees_to_cm(
-                    float(self.lb_sd_size_value.text()
+                    float(self.logMar_to_deg[self.lb_sd_size_value.text()]
                     )
                 ) 
             )
