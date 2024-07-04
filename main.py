@@ -44,7 +44,7 @@ class MainWindow(QMainWindow):
         #self.resize(600, 400)
 
         #self.move(QApplication.desktop().availableGeometry().topLeft())
-        point = QApplication.desktop().screen().rect().center() - QPoint(self.width()*0.8,self.height()*0.5)
+        point = QApplication.desktop().screen().rect().center() - QPoint(self.width()*0.8,self.height()*0.8)
         self.move(point)
         print(point, QApplication.desktop().screen().rect().center(), self.rect().center())
 
@@ -52,8 +52,6 @@ class MainWindow(QMainWindow):
         font = self.font()
         font.setPointSize(12)
         QApplication.setFont(font)
-
-
 
 app = QApplication([])
 w = MainWindow()

@@ -21,6 +21,7 @@ class UI_infinite(QWidget):
 
     def __init__(self, connected_patient, selected_config, cam_left, cam_right, pupil_labs):
         super().__init__()
+        parameters = Parameters()
         self.__connected_patient = connected_patient
         self.__selected_config = selected_config
         self.__cam_left = cam_left
@@ -28,18 +29,16 @@ class UI_infinite(QWidget):
         self.__pupil_labs = pupil_labs
 
         self.__infinite = None
-        self.logMar_to_deg = {'1.3': '1.67', '1.2':'1.33','1.1':'1.04','1.0':'0.83','0.9':'0.67','0.8':'0.525','0.7':'0.42','0.6':'0.33','0.5':'0.27','0.4':'0.21','0.3':'0.17','0.2':'0.13','0.1':'0.10','0.0':'0.08'}
-        self.file_folder_gen = Generation()
+        self.logMar_to_deg = parameters.logMar_to_deg_data
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # Create a QLabel to display the recording status
         self.lb_rec_img = QLabel(self)
         self.lb_rec_img.setGeometry(10, 10, 50, 50)
-        parameters = Parameters()
         self.pp_rec = QPixmap(parameters.image_recording)
 
-        lb_mode = QLabel("Mode :")
+        lb_mode = QLabel("Mode")
         self.rb_mode_test = QRadioButton("Test", self)
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
@@ -63,6 +62,7 @@ class UI_infinite(QWidget):
         lt_mode.addWidget(self.rb_mode_test)
         lt_mode.addWidget(self.rb_mode_pupil)
         lt_mode.addWidget(self.rb_mode_lens)
+        lt_mode.setContentsMargins(0, 0, 0, 8)
 
         lb_color = QLabel("Select target color")
         self.cb_color = QComboBox()
@@ -75,6 +75,7 @@ class UI_infinite(QWidget):
         lt_color = QHBoxLayout()
         lt_color.addWidget(lb_color)
         lt_color.addWidget(self.cb_color)
+        lt_color.setContentsMargins(0, 0, 0, 8)
 
         lb_size = QLabel("Select target size (logMar)")
         self.sd_size = QSlider(Qt.Horizontal, self)
@@ -92,6 +93,7 @@ class UI_infinite(QWidget):
         lt_size.addWidget(lb_size)
         lt_size.addWidget(self.sd_size)
         lt_size.addWidget(self.lb_sd_size_value)
+        lt_size.setContentsMargins(0, 0, 0, 8)
 
         lb_direction = QLabel("Select target direction")
         self.cb_direction = QComboBox()
@@ -103,6 +105,7 @@ class UI_infinite(QWidget):
         lt_direction = QHBoxLayout()
         lt_direction.addWidget(lb_direction)
         lt_direction.addWidget(self.cb_direction)
+        lt_direction.setContentsMargins(0, 0, 0, 8)
 
         lb_time_step = QLabel("Select time step (ms)")
         self.sd_time_step = QSlider(Qt.Horizontal, self)
@@ -121,8 +124,9 @@ class UI_infinite(QWidget):
         lt_time_step.addWidget(lb_time_step)
         lt_time_step.addWidget(self.sd_time_step)
         lt_time_step.addWidget(self.lb_sd_time_step_value)
+        lt_time_step.setContentsMargins(0, 0, 0, 8)
 
-        lb_auto_stop = QLabel("Automatic stop?")
+        lb_auto_stop = QLabel("Automatic stop")
         self.rb_true = QRadioButton("True", self)
         self.rb_false = QRadioButton("False", self)
         self.rb_true.setChecked(True)
@@ -131,6 +135,7 @@ class UI_infinite(QWidget):
         lt_auto_stop.addWidget(lb_auto_stop)
         lt_auto_stop.addWidget(self.rb_true)
         lt_auto_stop.addWidget(self.rb_false)
+        lt_auto_stop.setContentsMargins(0, 0, 0, 8)
 
         lb_nb_cycle_exo = QLabel("Nb infini cycle")
         self.sd_nb_cycle_exo = QSlider(Qt.Horizontal, self)
@@ -138,7 +143,7 @@ class UI_infinite(QWidget):
         self.sd_nb_cycle_exo.setFixedWidth(260)
         self.sd_nb_cycle_exo.setMinimum(1)
         self.sd_nb_cycle_exo.setMaximum(50)
-        self.sd_nb_cycle_exo.setSliderPosition(1)
+        self.sd_nb_cycle_exo.setSliderPosition(5)
         self.sd_nb_cycle_exo.setEnabled(True)
         self.sd_nb_cycle_exo.valueChanged.connect(self.update_sd_nb_cycle_exo_value)
         self.lb_sd_nb_cycle_exo_value = QLabel()
@@ -149,6 +154,7 @@ class UI_infinite(QWidget):
         lt_nb_cycle_exo.addWidget(lb_nb_cycle_exo)
         lt_nb_cycle_exo.addWidget(self.sd_nb_cycle_exo)
         lt_nb_cycle_exo.addWidget(self.lb_sd_nb_cycle_exo_value)
+        lt_nb_cycle_exo.setContentsMargins(0, 0, 0, 8)
 
         self.bt_start_pupilLabs = QPushButton("Start Pupil Capture")
         self.bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)

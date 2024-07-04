@@ -18,7 +18,11 @@ class Screen_calibration(QWidget):
         # Start the timer
         self.timer.start()
 
-        screen = QDesktopWidget().availableGeometry(1)#QDesktopWidget().screenGeometry(1)
+        screen_count = QDesktopWidget().screenCount()
+        if screen_count > 1:
+            screen = QDesktopWidget().screenGeometry(1)
+        else :
+            screen = QDesktopWidget().screenGeometry(0)
         self.__display_width = screen.width() 
         self.__display_height = screen.height()  
 
@@ -39,7 +43,7 @@ class Screen_calibration(QWidget):
         qp.setPen(color)
 
         qp.setBrush(QColor(255, 255, 255))
-        qp.drawRect(self.__display_width/2 - self.__size/2, 
-                    self.__display_height/2 - self.__size/2, 
+        qp.drawRect((self.__display_width/2) - (self.__size/2), 
+                    (self.__display_height/2) - (self.__size/2), 
                     self.__size, self.__size)
 

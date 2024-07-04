@@ -1,20 +1,17 @@
-from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QDesktopWidget
-from PyQt5.QtGui import QPainter, QBrush, QPen, QColor
+from PyQt5.QtWidgets import QWidget, QDesktopWidget
+from PyQt5.QtGui import QPainter, QBrush, QPen
 from PyQt5.QtCore import Qt, QTimer
-import pyautogui
 import math
 import pandas as pd
-import csv
 
 import time
-import multiprocessing
 
 from parameters import Parameters
 from screen_calibration import Screen_calibration
 from pupil_labs import Pupil_labs
 
 class Saccade(QWidget):
-    def __init__(self, selected_config, recording_label, pupil_labs, cam_left, cam_right): 
+    def __init__(self, selected_config, recording_label, pupil_labs, cam_left, cam_right, scenario): 
         super().__init__()
         self.setWindowTitle("Saccade")
 
@@ -23,8 +20,19 @@ class Saccade(QWidget):
         self.__pupil_labs = pupil_labs
         self.__cam_left = cam_left
         self.__cam_right = cam_right 
+        self.__scenario = scenario
 
-        screen = QDesktopWidget().screenGeometry(1)
+        parameters = Parameters()
+        self.scenario_path = parameters.scenario_path
+        for i in [1,2,3,4]:
+            if self.__scenario == i:
+                self.scenar = self.read_scenario(self.scenario_path.replace('*',str(i)))
+      
+        screen_count = QDesktopWidget().screenCount()
+        if screen_count > 1:
+            screen = QDesktopWidget().screenGeometry(1)
+        else :
+            screen = QDesktopWidget().screenGeometry(0)        
         self.__display_width = screen.width() 
         self.__display_height = screen.height() 
 
@@ -36,6 +44,9 @@ class Saccade(QWidget):
         self.__time_step_GUI = 1000
 
         self.__is_running = False
+
+        self.__duration_exo = 1000
+
         self.__nb_cycle = -1
         self.__cpt_cycle = 0
 
@@ -59,6 +70,7 @@ class Saccade(QWidget):
         self.__csv_recorder = None
         self.__is_recording = False
         self.__start_time = None
+        self.elapsed_time = 0
 
     def set_time_step_GUI(self, value):
         self.__time_step_GUI = value
@@ -159,6 +171,9 @@ class Saccade(QWidget):
     def set_nb_cycle(self, value):
         self.__nb_cycle = value
 
+    def set_duration_exo(self, value):
+        self.__duration_exo = value
+
     def paintEvent(self, event):
         if self.__is_running:
             painter = QPainter(self)
@@ -180,30 +195,82 @@ class Saccade(QWidget):
         self.__recording_label.clear()
         self.close()
 
-    def __update_position(self):
-        if self.__x == self.__x_left_tmp and self.__y == self.__y_left_tmp:
-            self.__x = self.__x_right_tmp
-            self.__y = self.__y_right_tmp
-        else:
-            self.__x = self.__x_left_tmp
-            self.__y = self.__y_left_tmp
-        self.__cpt_cycle = self.__cpt_cycle + 1
+    def read_scenario(self, path):
+        list = []
+        with open(path) as f:
+            for line in f:
+                list.append(int(line))
+            return list
+    
+    def translate_scenario_indexes_to_pixel_position(self, scenario):
+        translated_scenario = []
+        degree_of_amplitude = 5
+        scaled_amplitude = degree_of_amplitude * self.__ratio_pixel_cm 
+        for pos in scenario:
+            if pos == 0 :
+                translated_scenario.append((self.__display_width / 2 - self.__size/2, self.__display_height / 2 - self.__size/2))
+            elif pos == 1:
+                translated_scenario.append((self.__display_width / 2 + scaled_amplitude - self.__size/2 , self.__display_height / 2 - self.__size/2 ))
+            elif pos == 2:
+                translated_scenario.append((self.__display_width / 2 + scaled_amplitude - self.__size/2, self.__display_height / 2 + scaled_amplitude - self.__size/2))
+            elif pos == 3:
+                translated_scenario.append((self.__display_width / 2 - self.__size/2 , self.__display_height / 2 + scaled_amplitude - self.__size/2))
+            elif pos == 4:
+                translated_scenario.append((self.__display_width / 2 - scaled_amplitude - self.__size/2, self.__display_height / 2 + scaled_amplitude - self.__size/2))
+            elif pos == 5:
+                translated_scenario.append((self.__display_width / 2 - scaled_amplitude - self.__size/2 , self.__display_height / 2 - self.__size/2 ))
+            elif pos == 6:
+                translated_scenario.append((self.__display_width / 2 - scaled_amplitude - self.__size/2, self.__display_height / 2 - scaled_amplitude - self.__size/2))
+            elif pos == 7:
+                translated_scenario.append((self.__display_width / 2  - self.__size/2 , self.__display_height / 2 - scaled_amplitude - self.__size/2))
+            elif pos == 8:
+                translated_scenario.append((self.__display_width / 2 + scaled_amplitude - self.__size/2, self.__display_height / 2 - scaled_amplitude - self.__size/2))
 
+        return translated_scenario
+        
+    def __update_position(self):
+        current_time = time.perf_counter()
+        if self.__start_time is None:
+            self.__start_time = current_time
+        elapsed_time = current_time - self.__start_time
+
+        
+        if self.__scenario == 0:
+            if self.__x == self.__x_left_tmp and self.__y == self.__y_left_tmp:
+                self.__x = self.__x_right_tmp
+                self.__y = self.__y_right_tmp
+            else:
+                self.__x = self.__x_left_tmp
+                self.__y = self.__y_left_tmp
+            
+        else :
+            if self.__cpt_cycle < len(self.scenar):
+                print(round(elapsed_time),self.__cpt_cycle)
+
+                translated_scenario = self.translate_scenario_indexes_to_pixel_position(self.scenar)
+                self.__x = translated_scenario [self.__cpt_cycle][0]
+                self.__y = translated_scenario [self.__cpt_cycle][1]  
+        
+            
         if self.__is_recording:
-            current_time = time.perf_counter()
-            if self.__start_time is None:
-                self.__start_time = current_time
-            elapsed_time = current_time - self.__start_time
             self.get_csv_recorder().record(
                 round(elapsed_time, 2),
                 round(self.__x, 2),
                 round(self.__y, 2)
             )
+        if self.elapsed_time >= self.__duration_exo and self.__scenario == 0:
+            self.stop_exo()
+        if self.__scenario != 0:
+            if self.__cpt_cycle >= len(self.scenar) :
+                self.stop_exo()
+        
+        self.__cpt_cycle = self.__cpt_cycle + 1
 
     def __update(self):
         self.__update_position()
-        if self.__nb_cycle < self.__cpt_cycle: 
-            self.stop_exo()
+        """if self.__nb_cycle < self.__cpt_cycle: 
+            self.stop_exo()"""
 
         self.update()
+        
         

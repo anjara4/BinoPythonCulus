@@ -25,3 +25,10 @@ class Parameters:
         self.frame_size_weight = self.__paths[15]
         self.camera_display_width = self.__paths[16]
         self.camera_display_height = self.__paths[17]
+        self.logMar_to_deg_data = {}
+        with open(self.__paths[18]) as f:
+            for line in f:
+                (key, val) = line.split(";")
+                self.logMar_to_deg_data[key] = val
+        self.scenario_path = self.__paths[19]
+    

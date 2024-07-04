@@ -23,14 +23,16 @@ class UI_saccade(QWidget):
 
     def __init__(self, connected_patient, selected_config, cam_left, cam_right, pupil_labs):
         super().__init__()
+        parameters = Parameters()
         self.__connected_patient = connected_patient
         self.__selected_config = selected_config
         self.__cam_left = cam_left
         self.__cam_right = cam_right
         self.__pupil_labs = pupil_labs
+        self.__scenario = 0
 
         self.__saccade = None
-        self.logMar_to_deg = {'1.3': '1.67', '1.2':'1.33','1.1':'1.04','1.0':'0.83','0.9':'0.67','0.8':'0.525','0.7':'0.42','0.6':'0.33','0.5':'0.27','0.4':'0.21','0.3':'0.17','0.2':'0.13','0.1':'0.10','0.0':'0.08'}
+        self.logMar_to_deg = parameters.logMar_to_deg_data
         self.file_folder_gen = Generation()
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -38,14 +40,13 @@ class UI_saccade(QWidget):
         # Create a QLabel to display the recording status
         self.lb_rec_img = QLabel(self)
         self.lb_rec_img.setGeometry(10, 10, 50, 50)
-        parameters = Parameters()
         self.pp_rec = QPixmap(parameters.image_recording)
 
-        lb_mode = QLabel("Mode :")
+        lb_mode = QLabel("Mode")
         self.rb_mode_test = QRadioButton("Test", self)
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
-        
+    
         self.rb_mode_pupil.setChecked(False)
         self.rb_mode_lens.setChecked(False)
         self.rb_mode_test.setChecked(True)
@@ -65,6 +66,7 @@ class UI_saccade(QWidget):
         lt_mode.addWidget(self.rb_mode_test)
         lt_mode.addWidget(self.rb_mode_pupil)
         lt_mode.addWidget(self.rb_mode_lens)
+        lt_mode.setContentsMargins(0, 0, 0, 8)
 
         lb_color = QLabel("Select target color")
         self.cb_color = QComboBox()
@@ -77,6 +79,7 @@ class UI_saccade(QWidget):
         lt_color = QHBoxLayout()
         lt_color.addWidget(lb_color)
         lt_color.addWidget(self.cb_color)
+        lt_color.setContentsMargins(0, 0, 0, 8)
 
         lb_size = QLabel("Select target size (logMar)")
         self.sd_size = QSlider(Qt.Horizontal, self)
@@ -84,6 +87,7 @@ class UI_saccade(QWidget):
         self.sd_size.setFixedWidth(260)
         self.sd_size.setMinimum(0)
         self.sd_size.setMaximum(13)
+        self.sd_size.setSliderPosition(8)
         self.sd_size.valueChanged.connect(self.update_sd_size_value)
         self.lb_sd_size_value = QLabel()
         self.lb_sd_size_value.setSizePolicy(size_policy)
@@ -93,6 +97,7 @@ class UI_saccade(QWidget):
         lt_size.addWidget(lb_size)
         lt_size.addWidget(self.sd_size)
         lt_size.addWidget(self.lb_sd_size_value)
+        lt_size.setContentsMargins(0, 0, 0, 8)
 
         lb_saccade_time = QLabel("Select saccade time (s)")
         self.sd_saccade_time = QSlider(Qt.Horizontal, self)
@@ -110,8 +115,54 @@ class UI_saccade(QWidget):
         lt_saccade_time.addWidget(lb_saccade_time)
         lt_saccade_time.addWidget(self.sd_saccade_time)
         lt_saccade_time.addWidget(self.lb_sd_saccade_time_value)
+        lt_saccade_time.setContentsMargins(0, 0, 0, 8)
 
-        lb_delta_hor = QLabel("Delta left / right (°)")
+        lb_scenario = QLabel("Scenario")
+        self.rb_scenario_none = QRadioButton("None", self)
+        self.rb_scenario_1 = QRadioButton("Scenario 1", self)
+        self.rb_scenario_2 = QRadioButton("Scenario 2", self)
+        self.rb_scenario_3 = QRadioButton("Scenario 3", self)
+        self.rb_scenario_4 = QRadioButton("Scenario 4", self)
+
+        self.rb_scenario_none.setChecked(True)
+        self.rb_scenario_1.setChecked(False)
+        self.rb_scenario_2.setChecked(False)
+        self.rb_scenario_3.setChecked(False)
+        self.rb_scenario_4.setChecked(False)    
+
+        self.rb_group_scenario = QButtonGroup()
+        self.rb_group_scenario.addButton(self.rb_scenario_none)
+        self.rb_group_scenario.addButton(self.rb_scenario_1)
+        self.rb_group_scenario.addButton(self.rb_scenario_2)
+        self.rb_group_scenario.addButton(self.rb_scenario_3)
+        self.rb_group_scenario.addButton(self.rb_scenario_4)
+        self.rb_group_scenario.setExclusive(True)
+
+        self.rb_scenario_none.toggled.connect(self.scenario_none)
+        self.rb_scenario_1.toggled.connect(self.scenario)
+        self.rb_scenario_2.toggled.connect(self.scenario)
+        self.rb_scenario_3.toggled.connect(self.scenario)
+        self.rb_scenario_4.toggled.connect(self.scenario)
+
+        lt_daugther_scenario = QVBoxLayout()
+        lt_daugther_1_scenario = QHBoxLayout()
+        lt_daugther_2_scenario = QHBoxLayout()
+        lt_scenario = QHBoxLayout()
+        lt_scenario.addWidget(lb_scenario)
+        lt_daugther_1_scenario.addWidget(self.rb_scenario_none)
+        lt_daugther_1_scenario.addWidget(self.rb_scenario_1)
+        lt_daugther_1_scenario.addWidget(self.rb_scenario_2)
+        lt_daugther_2_scenario.addWidget(self.rb_scenario_3)
+        lt_daugther_2_scenario.addWidget(self.rb_scenario_4)
+        lt_daugther_1_scenario.setAlignment(Qt.AlignCenter)
+        lt_daugther_2_scenario.setAlignment(Qt.AlignCenter)
+        lt_daugther_scenario.addLayout(lt_daugther_1_scenario)
+        lt_daugther_scenario.addLayout(lt_daugther_2_scenario)
+        lt_scenario.addLayout(lt_daugther_scenario,2)
+        lt_scenario.setContentsMargins(0, 0, 0, 8)
+
+
+        lb_delta_hor = QLabel("\u0394 left / right (°)")
         self.sd_delta_hor = QSlider(Qt.Horizontal, self)
         self.sd_delta_hor.setSizePolicy(size_policy)
         self.sd_delta_hor.setFixedWidth(260)
@@ -127,8 +178,9 @@ class UI_saccade(QWidget):
         lt_delta_hor.addWidget(lb_delta_hor)
         lt_delta_hor.addWidget(self.sd_delta_hor)
         lt_delta_hor.addWidget(self.lb_sd_delta_hor_value)
+        lt_delta_hor.setContentsMargins(0, 0, 0, 8)
 
-        lb_delta_ver = QLabel("Delta top / bottom (°)")
+        lb_delta_ver = QLabel("\u0394 top / bottom (°)")
         self.sd_delta_ver = QSlider(Qt.Horizontal, self)
         self.sd_delta_ver.setSizePolicy(size_policy)
         self.sd_delta_ver.setFixedWidth(260)
@@ -144,8 +196,9 @@ class UI_saccade(QWidget):
         lt_delta_ver.addWidget(lb_delta_ver)
         lt_delta_ver.addWidget(self.sd_delta_ver)
         lt_delta_ver.addWidget(self.lb_sd_delta_ver_value)
+        lt_delta_ver.setContentsMargins(0, 0, 0, 8)
 
-        lb_auto_stop = QLabel("Automatic stop?")
+        lb_auto_stop = QLabel("Automatic stop")
         self.rb_true = QRadioButton("True", self)
         self.rb_false = QRadioButton("False", self)
         self.rb_true.setChecked(True)
@@ -154,8 +207,9 @@ class UI_saccade(QWidget):
         lt_auto_stop.addWidget(lb_auto_stop)
         lt_auto_stop.addWidget(self.rb_true)
         lt_auto_stop.addWidget(self.rb_false)
+        lt_auto_stop.setContentsMargins(0, 0, 0, 8)
 
-        lb_nb_cycle = QLabel("Nb saccade cycle")
+        """lb_nb_cycle = QLabel("Nb saccade cycle")
         self.sd_nb_cycle = QSlider(Qt.Horizontal, self)
         self.sd_nb_cycle.setSizePolicy(size_policy)
         self.sd_nb_cycle.setFixedWidth(260)
@@ -171,7 +225,26 @@ class UI_saccade(QWidget):
         lt_nb_cycle = QHBoxLayout()
         lt_nb_cycle.addWidget(lb_nb_cycle)
         lt_nb_cycle.addWidget(self.sd_nb_cycle)
-        lt_nb_cycle.addWidget(self.lb_sd_nb_cycle_value)
+        lt_nb_cycle.addWidget(self.lb_sd_nb_cycle_value)"""
+
+        lb_duration_exo = QLabel("Duration (s)")
+        self.sd_duration_exo = QSlider(Qt.Horizontal, self)
+        self.sd_duration_exo.setSizePolicy(size_policy)
+        self.sd_duration_exo.setFixedWidth(260)
+        self.sd_duration_exo.setMinimum(1)
+        self.sd_duration_exo.setMaximum(500)
+        self.sd_duration_exo.setSliderPosition(60)
+        self.sd_duration_exo.setEnabled(True)
+        self.sd_duration_exo.valueChanged.connect(self.update_sd_duration_exo_value)
+        self.lb_sd_duration_exo_value = QLabel()
+        self.lb_sd_duration_exo_value.setSizePolicy(size_policy)
+        self.lb_sd_duration_exo_value.setFixedWidth(25)
+        self.lb_sd_duration_exo_value.setText(str(self.sd_duration_exo.value()))
+        lt_duration_exo = QHBoxLayout()
+        lt_duration_exo.addWidget(lb_duration_exo)
+        lt_duration_exo.addWidget(self.sd_duration_exo)
+        lt_duration_exo.addWidget(self.lb_sd_duration_exo_value)
+        lt_duration_exo.setContentsMargins(0, 0, 0, 8)
 
         self.bt_start_pupilLabs = QPushButton("Start Pupil Capture")
         self.bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)
@@ -219,11 +292,13 @@ class UI_saccade(QWidget):
         self.lt = QVBoxLayout()
         self.lt.addLayout(lt_color)
         self.lt.addLayout(lt_size)
+        self.lt.addLayout(lt_scenario)
         self.lt.addLayout(lt_saccade_time)
         self.lt.addLayout(lt_delta_hor)
         self.lt.addLayout(lt_delta_ver)
         self.lt.addLayout(lt_auto_stop)
-        self.lt.addLayout(lt_nb_cycle)
+        #self.lt.addLayout(lt_nb_cycle)
+        self.lt.addLayout(lt_duration_exo)
         self.lt.addLayout(lt_mode)
         self.lt.addLayout(self.lt_bt_pupilLabs)
         self.lt.addLayout(lt_bt_rec)
@@ -232,6 +307,8 @@ class UI_saccade(QWidget):
         self.lt.addLayout(lt_bt_calibration)
 
         self.setLayout(self.lt)
+
+    
 
     def start_pupilLabs(self):
         self.__pupil_labs.start_pupilLabs()
@@ -371,12 +448,44 @@ class UI_saccade(QWidget):
             dlg = CustomDialog(message="Refresh the camera if it is frozen")
             dlg.exec()
 
+    def scenario(self):
+        self.sd_duration_exo.setEnabled(False)
+        self.sd_delta_hor.setEnabled(False)
+        self.sd_delta_ver.setEnabled(False)
+        self.rb_true.setEnabled(False)
+        self.rb_false.setEnabled(False)
+        self.toggleSignal.emit(True) 
+
+        if self.rb_scenario_1.isChecked():
+            self.__scenario = 1
+        elif self.rb_scenario_2.isChecked():
+            self.__scenario = 2
+        elif self.rb_scenario_3.isChecked():
+            self.__scenario = 3
+        elif self.rb_scenario_4.isChecked():   
+            self.__scenario = 4
+
+    def scenario_none(self):
+        self.sd_duration_exo.setEnabled(True)
+        self.sd_delta_hor.setEnabled(True)
+        self.sd_delta_ver.setEnabled(True)
+        self.rb_true.setEnabled(True)
+        self.rb_false.setEnabled(True)
+        self.toggleSignal.emit(True)
+        self.__scenario = 0 
+
+
     def create_form_automatic_stop(self):
         if self.rb_false.isChecked():
-            self.sd_nb_cycle.setEnabled(False)
+            self.sd_duration_exo.setEnabled(False)
+            # self.sd_nb_cycle.setEnabled(False)
         else:
-            self.sd_nb_cycle.setEnabled(True)
+            self.sd_duration_exo.setEnabled(True)
+            # self.sd_nb_cycle.setEnabled(True)
 
+    def update_sd_duration_exo_value(self):
+        self.lb_sd_duration_exo_value.setText(str(self.sd_duration_exo.value()))
+    
     def update_sd_nb_cycle_value(self):
         self.lb_sd_nb_cycle_value.setText(
             str(self.sd_nb_cycle.value()))
@@ -577,18 +686,14 @@ class UI_saccade(QWidget):
                 self.lb_rec_img,
                 self.__pupil_labs,
                 self.__cam_left,
-                self.__cam_right
+                self.__cam_right, 
+                self.__scenario
                 )
 
             self.__saccade.set_time_step_GUI(self.sd_saccade_time.value() * 1000) #convert in milisecond
             self.__saccade.set_selected_config(self.__selected_config)
             self.__saccade.set_ratio_pixel_cm()
 
-            if self.rb_false.isChecked():
-                self.__saccade.set_nb_cycle(10000)
-                # define a high number represinting an infinite value
-            else:
-                self.__saccade.set_nb_cycle(self.sd_nb_cycle.value())
             self.__saccade.set_size(
                 self.__saccade.degrees_to_cm(
                     float(self.logMar_to_deg[self.lb_sd_size_value.text()]
@@ -598,14 +703,34 @@ class UI_saccade(QWidget):
             self.__saccade.scale_size()
             self.__saccade.set_color(QColor(self.cb_color.currentData()))
             self.__saccade.set_saccade_time(self.sd_saccade_time.value())
-            self.__saccade.set_delta_hor(
-                self.__saccade.degrees_to_cm(self.sd_delta_hor.value()/2)
-                )
-            self.__saccade.scale_delta_hor()
-            self.__saccade.set_delta_ver(
-                self.__saccade.degrees_to_cm(self.sd_delta_ver.value()/2)
-                )
-            self.__saccade.scale_delta_ver()
+
+            if self.rb_scenario_none.isChecked():
+                if self.rb_false.isChecked():
+                    self.__saccade.set_duration_exo(10000)
+                    # self.__saccade.set_nb_cycle(10000)
+                    # define a high number represinting an infinite value
+                else :
+                    #self.__saccade.set_nb_cycle(self.sd_nb_cycle.value())
+                    self.__saccade.set_duration_exo(self.sd_duration_exo.value())
+
+                
+                self.__saccade.set_delta_hor(
+                    self.__saccade.degrees_to_cm(self.sd_delta_hor.value()/2)
+                    )
+                self.__saccade.scale_delta_hor()
+                self.__saccade.set_delta_ver(
+                    self.__saccade.degrees_to_cm(self.sd_delta_ver.value()/2)
+                    )
+                self.__saccade.scale_delta_ver()
+
+            if self.rb_scenario_1.isChecked() or self.rb_scenario_2.isChecked() or self.rb_scenario_3.isChecked() or self.rb_scenario_4.isChecked():
+                self.__saccade.set_duration_exo(600)
+
+                self.__saccade.set_delta_hor(self.__saccade.degrees_to_cm(0))
+                self.__saccade.scale_delta_hor()
+                self.__saccade.set_delta_ver(self.__saccade.degrees_to_cm(0))
+                self.__saccade.scale_delta_ver()
+            
             self.__saccade.init_x_left_pos()
             self.__saccade.init_y_left_pos()
             self.__saccade.init_x_right_pos()

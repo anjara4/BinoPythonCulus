@@ -24,6 +24,7 @@ class UI_fixation(QWidget):
 
     def __init__(self, connected_patient, selected_config, cam_left, cam_right, pupil_labs):
         super().__init__()
+        parameters = Parameters()
         self.__connected_patient = connected_patient
         self.__selected_config = selected_config
         self.__cam_left = cam_left
@@ -31,7 +32,7 @@ class UI_fixation(QWidget):
         self.__pupil_labs = pupil_labs
 
         self.__fixation = None
-        self.logMar_to_deg = {'1.3': '1.67', '1.2':'1.33','1.1':'1.04','1.0':'0.83','0.9':'0.67','0.8':'0.525','0.7':'0.42','0.6':'0.33','0.5':'0.27','0.4':'0.21','0.3':'0.17','0.2':'0.13','0.1':'0.10','0.0':'0.08'}
+        self.logMar_to_deg = self.logMar_to_deg = parameters.logMar_to_deg_data
         self.file_folder_gen = Generation()
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
@@ -39,10 +40,9 @@ class UI_fixation(QWidget):
         # Create a QLabel to display the recording status
         self.lb_rec_img = QLabel(self)
         self.lb_rec_img.setGeometry(10, 10, 50, 50)
-        parameters = Parameters()
         self.pp_rec = QPixmap(parameters.image_recording)
 
-        lb_mode = QLabel("Mode:")
+        lb_mode = QLabel("Mode")
         self.rb_mode_test = QRadioButton("Test", self)
         self.rb_mode_pupil = QRadioButton("Pupil", self)
         self.rb_mode_lens = QRadioButton("Lens", self)
@@ -66,6 +66,7 @@ class UI_fixation(QWidget):
         lt_mode.addWidget(self.rb_mode_test)
         lt_mode.addWidget(self.rb_mode_pupil)
         lt_mode.addWidget(self.rb_mode_lens)
+        lt_mode.setContentsMargins(0, 0, 0, 8)
 
         lb_color = QLabel("Select target color")
         self.cb_color = QComboBox()
@@ -78,6 +79,7 @@ class UI_fixation(QWidget):
         lt_color = QHBoxLayout()
         lt_color.addWidget(lb_color)
         lt_color.addWidget(self.cb_color)
+        lt_color.setContentsMargins(0, 0, 0, 8)
 
         lb_size = QLabel("Select target size (logMar)")
         self.sd_size = QSlider(Qt.Horizontal, self)
@@ -95,9 +97,10 @@ class UI_fixation(QWidget):
         lt_size.addWidget(lb_size)
         lt_size.addWidget(self.sd_size)
         lt_size.addWidget(self.lb_sd_size_value)
+        lt_size.setContentsMargins(0, 0, 0, 8)
 
 
-        lb_hor_pos = QLabel("Select delta X from center (°)")
+        lb_hor_pos = QLabel("Select \u0394X from center (°)")
         self.sd_hor_pos = QSlider(Qt.Horizontal, self)
         self.sd_hor_pos.setSizePolicy(size_policy)
         self.sd_hor_pos.setFixedWidth(260)
@@ -113,8 +116,9 @@ class UI_fixation(QWidget):
         lt_hor_pos.addWidget(lb_hor_pos)
         lt_hor_pos.addWidget(self.sd_hor_pos)
         lt_hor_pos.addWidget(self.lb_sd_hor_pos_value)
+        lt_hor_pos.setContentsMargins(0, 0, 0, 8)
 
-        lb_ver_pos = QLabel("Select delta y from center (°)")
+        lb_ver_pos = QLabel("Select \u0394Y from center (°)")
         self.sd_ver_pos = QSlider(Qt.Horizontal, self)
         self.sd_ver_pos.setSizePolicy(size_policy)
         self.sd_ver_pos.setFixedWidth(260)
@@ -130,6 +134,7 @@ class UI_fixation(QWidget):
         lt_ver_pos.addWidget(lb_ver_pos)
         lt_ver_pos.addWidget(self.sd_ver_pos)
         lt_ver_pos.addWidget(self.lb_sd_ver_pos_value)
+        lt_ver_pos.setContentsMargins(0, 0, 0, 8)
 
         self.bt_start_pupilLabs = QPushButton("Start Pupil Capture")
         self.bt_start_pupilLabs.clicked.connect(self.start_pupilLabs)
@@ -168,7 +173,7 @@ class UI_fixation(QWidget):
         bt_stop = QPushButton("Stop Run")
         bt_stop.clicked.connect(self.stop_all)
 
-        lb_auto_stop = QLabel("Automatic stop?")
+        lb_auto_stop = QLabel("Automatic stop")
         self.rb_true = QRadioButton("True", self)
         self.rb_false = QRadioButton("False", self)
         self.rb_true.setChecked(True)
@@ -177,11 +182,12 @@ class UI_fixation(QWidget):
         lt_auto_stop.addWidget(lb_auto_stop)
         lt_auto_stop.addWidget(self.rb_true)
         lt_auto_stop.addWidget(self.rb_false)
+        lt_auto_stop.setContentsMargins(0, 0, 0, 8)
 
         lb_duration_exo = QLabel("Duration (s)")
         self.sd_duration_exo = QSlider(Qt.Horizontal, self)
         self.sd_duration_exo.setSizePolicy(size_policy)
-        self.sd_duration_exo.setFixedWidth(266)
+        self.sd_duration_exo.setFixedWidth(260)
         self.sd_duration_exo.setMinimum(1)
         self.sd_duration_exo.setMaximum(500)
         self.sd_duration_exo.setSliderPosition(15)
@@ -189,12 +195,13 @@ class UI_fixation(QWidget):
         self.sd_duration_exo.valueChanged.connect(self.update_sd_duration_exo_value)
         self.lb_sd_duration_exo_value = QLabel()
         self.lb_sd_duration_exo_value.setSizePolicy(size_policy)
-        self.lb_sd_duration_exo_value.setFixedWidth(21)
+        self.lb_sd_duration_exo_value.setFixedWidth(25)
         self.lb_sd_duration_exo_value.setText(str(self.sd_duration_exo.value()))
         lt_duration_exo = QHBoxLayout()
         lt_duration_exo.addWidget(lb_duration_exo)
         lt_duration_exo.addWidget(self.sd_duration_exo)
         lt_duration_exo.addWidget(self.lb_sd_duration_exo_value)
+        lt_duration_exo.setContentsMargins(0, 0, 0, 8)
 
         lt_bt_rec = QHBoxLayout()
         lt_bt_rec.addWidget(self.bt_launch_fixation)

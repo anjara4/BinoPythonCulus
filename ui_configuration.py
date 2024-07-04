@@ -220,7 +220,12 @@ class Creation(QWidget):
             self.le_exe_selector.setText(fileName)
 
     def start_screen_calibration(self):
-        screen = QDesktopWidget().screenGeometry(1)
+        screen_count = QDesktopWidget().screenCount()
+        print(screen_count) # to check 
+        if screen_count > 1:
+            screen = QDesktopWidget().screenGeometry(1)
+        else :
+            screen = QDesktopWidget().screenGeometry(0)
         self.screen_calibration = Screen_calibration()
         self.screen_calibration.setGeometry(screen)
         self.screen_calibration.showMaximized()

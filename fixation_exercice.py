@@ -17,7 +17,11 @@ class Fixation(QWidget):
         super().__init__()
         self.setWindowTitle("Fixation")
 
-        screen = QDesktopWidget().screenGeometry(1)
+        screen_count = QDesktopWidget().screenCount()
+        if screen_count > 1:
+            screen = QDesktopWidget().screenGeometry(1)
+        else :
+            screen = QDesktopWidget().screenGeometry(0)
         self.__display_width = screen.width() 
         self.__display_height = screen.height() 
 
