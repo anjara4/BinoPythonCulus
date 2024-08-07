@@ -148,7 +148,7 @@ class Creation(QWidget):
         parameters = Parameters()
         self.__data_patient = parameters.data_patient
 
-        self.lb_first_name = QLabel("*Enter first name")
+        self.lb_first_name = QLabel("*Enter ID patient:")
         self.le_first_name = QLineEdit()
         self.le_first_name.setSizePolicy(size_policy)
         self.le_first_name.setFixedWidth(300)
