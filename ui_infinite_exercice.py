@@ -30,6 +30,7 @@ class UI_infinite(QWidget):
 
         self.__infinite = None
         self.logMar_to_deg = parameters.logMar_to_deg_data
+        self.file_folder_gen = Generation()
 
         size_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
