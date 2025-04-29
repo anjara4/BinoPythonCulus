@@ -37,7 +37,6 @@ class UI_main_configuration(QWidget):
         self.sub_select_config = Select_config(self.__table_list_config)
         self.sub_tabs.addTab(self.sub_tab_creation, "Add Configuration")
         self.sub_tabs.addTab(self.sub_select_config, "List of Configuration")
-        
 
         self.sub_tab_creation.createdConfigSignal.connect(self.connect_new_created_config)
 

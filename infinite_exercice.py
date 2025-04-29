@@ -64,7 +64,6 @@ class Infinite(QWidget):
         self.__csv_recorder = None
         self.__is_recording = False
         self.__start_time = None
-
         #These following parameters are used to scale the size of the infini object
 
         self.__original_width_px = 35 #pixel value of the infini object without scalling
@@ -90,6 +89,9 @@ class Infinite(QWidget):
         self.__y_scaling_horizontal = float(parameters.y_scaling_infini_horizontal)
 
         #self.ellipses = []
+
+        self._measures = []
+
 
     def update_original_width_height_px(self):
         if self.__is_object_vertical:
@@ -220,9 +222,10 @@ class Infinite(QWidget):
         self.__recording_label.clear()
         self.close()
 
+
     def __update_position(self):
         current_time = time.perf_counter() #for data saving
-        
+
         self.__averageAngleSpeed = self.__two_pi * self.__speed / self.__coef_speed
         self.__averageAngleSpeed = self.__averageAngleSpeed * self.__coef_averageAngleSpeed
 
@@ -266,12 +269,14 @@ class Infinite(QWidget):
             if self.__start_time is None:
                 self.__start_time = current_time
             elapsed_time = current_time - self.__start_time
-
+            
             self.get_csv_recorder().record(
                 round(elapsed_time, 2),
                 round(self.__x, 2),
                 round(self.__y, 2)
             )
+
+        
 
     def __update(self):
         self.__update_position()

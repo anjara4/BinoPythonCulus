@@ -205,26 +205,27 @@ class Saccade(QWidget):
     def translate_scenario_indexes_to_pixel_position(self, scenario):
         translated_scenario = []
         degree_of_amplitude = 5
-        scaled_amplitude = degree_of_amplitude * self.__ratio_pixel_cm 
+        ratio_degrees_to_cm =  math.tan(math.radians(degree_of_amplitude)) * self.get_depth_from_config()
+        scaled_amplitude = ratio_degrees_to_cm * self.__ratio_pixel_cm 
         for pos in scenario:
             if pos == 0 :
                 translated_scenario.append((self.__display_width / 2 - self.__size/2, self.__display_height / 2 - self.__size/2))
             elif pos == 1:
                 translated_scenario.append((self.__display_width / 2 + scaled_amplitude - self.__size/2 , self.__display_height / 2 - self.__size/2 ))
             elif pos == 2:
-                translated_scenario.append((self.__display_width / 2 + scaled_amplitude - self.__size/2, self.__display_height / 2 + scaled_amplitude - self.__size/2))
+                translated_scenario.append(((self.__display_width / 2 - self.__size/2) - scaled_amplitude*math.cos(math.degrees(45)) , (self.__display_height / 2 - self.__size/2) + scaled_amplitude *math.sin(math.degrees(45))))         
             elif pos == 3:
                 translated_scenario.append((self.__display_width / 2 - self.__size/2 , self.__display_height / 2 + scaled_amplitude - self.__size/2))
             elif pos == 4:
-                translated_scenario.append((self.__display_width / 2 - scaled_amplitude - self.__size/2, self.__display_height / 2 + scaled_amplitude - self.__size/2))
+                translated_scenario.append(((self.__display_width / 2 - self.__size/2) + scaled_amplitude *math.cos(math.degrees(45)), (self.__display_height / 2 - self.__size/2) + scaled_amplitude *math.sin(math.degrees(45))))
             elif pos == 5:
                 translated_scenario.append((self.__display_width / 2 - scaled_amplitude - self.__size/2 , self.__display_height / 2 - self.__size/2 ))
             elif pos == 6:
-                translated_scenario.append((self.__display_width / 2 - scaled_amplitude - self.__size/2, self.__display_height / 2 - scaled_amplitude - self.__size/2))
+                translated_scenario.append(((self.__display_width / 2 - self.__size/2) + scaled_amplitude *math.cos(math.degrees(45)), (self.__display_height / 2 - self.__size/2) - scaled_amplitude*math.sin(math.degrees(45))))
             elif pos == 7:
                 translated_scenario.append((self.__display_width / 2  - self.__size/2 , self.__display_height / 2 - scaled_amplitude - self.__size/2))
             elif pos == 8:
-                translated_scenario.append((self.__display_width / 2 + scaled_amplitude - self.__size/2, self.__display_height / 2 - scaled_amplitude - self.__size/2))
+                translated_scenario.append(((self.__display_width / 2 - self.__size/2) - scaled_amplitude *math.cos(math.degrees(45)), (self.__display_height / 2 - self.__size/2)- scaled_amplitude *math.sin(math.degrees(45))))
 
         return translated_scenario
         
