@@ -18,3 +18,5 @@ camera_display_width = 400
 camera_display_height = 400
 logMar_to_deg_data = Data_conf/logMar_to_deg.txt
 scenario_path = Data_conf/saccade_scenario/scenario_*.txt
+default_config_name = bureau_mo
+default_patient_name = Alice

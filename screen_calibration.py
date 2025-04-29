@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QApplication, QMainWindow, QDesktopWidget
 from PyQt5.QtGui import QPainter, QBrush, QPen, QColor, QPixmap
 from PyQt5.QtCore import Qt, QTimer
-import math
 
 from parameters import Parameters
 

@@ -31,4 +31,5 @@ class Parameters:
                 (key, val) = line.split(";")
                 self.logMar_to_deg_data[key] = val
         self.scenario_path = self.__paths[19]
-    
+        self.default_config_name = self.__paths[20]
+        self.default_patient_name = self.__paths[21]
