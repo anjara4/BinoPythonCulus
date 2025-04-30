@@ -52,9 +52,10 @@ class MainWindow(QMainWindow):
         #self.resize(600, 400)
 
         #self.move(QApplication.desktop().availableGeometry().topLeft())
-        point = QApplication.desktop().screen().rect().center() - QPoint(self.width()*0.8,self.height()*0.8)
+        #point = QApplication.desktop().screen().rect().center() - QPoint(self.width()*0.8,self.height()*0.8)
+        point=QPoint(0,0)
         self.move(point)
-        print(point, QApplication.desktop().screen().rect().center(), self.rect().center())
+        #print(point, QApplication.desktop().screen().rect().center(), self.rect().center())
 
         # Set minimum font size for labels 
         font = self.font()

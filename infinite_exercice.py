@@ -130,7 +130,7 @@ class Infinite(Exercise):
         delta = self.time_step_GUI * self.__averageAngleSpeed
         self.__currentAngle = self.__currentAngle + delta 
 
-        correction_angle = delta * (0.28 * abs(math.cos(self.__currentAngle)) - 0.17);
+        correction_angle = delta * (0.28 * abs(math.cos(self.__currentAngle)) - 0.17)
         self.__currentAngle = self.__currentAngle + correction_angle
 
         if self.__currentAngle > self.__two_pi: 
