@@ -99,6 +99,7 @@ class Saccade(Exercise):
         translated_scenario = []
         degree_of_amplitude = 5
         scaled_amplitude = degree_of_amplitude * self.get_ratio_pixel_cm() 
+
         for pos in scenario:
             if pos == 0 :
                 translated_scenario.append((self.get_display_width() / 2 - self.get_size()/2, self.get_display_height() / 2 - self.get_size()/2))
@@ -114,11 +115,11 @@ class Saccade(Exercise):
                 translated_scenario.append((self.get_display_width() / 2 - scaled_amplitude - self.get_size()/2 , self.get_display_height() / 2 - self.get_size()/2 ))
             elif pos == 6:
                 translated_scenario.append((self.get_display_width() / 2 - scaled_amplitude - self.get_size()/2, self.get_display_height() / 2 - scaled_amplitude - self.get_size()/2))
+
             elif pos == 7:
                 translated_scenario.append((self.get_display_width() / 2  - self.get_size()/2 , self.get_display_height() / 2 - scaled_amplitude - self.get_size()/2))
             elif pos == 8:
                 translated_scenario.append((self.get_display_width() / 2 + scaled_amplitude - self.get_size()/2, self.get_display_height() / 2 - scaled_amplitude - self.get_size()/2))
-
         return translated_scenario
         
     def __update_position(self):
