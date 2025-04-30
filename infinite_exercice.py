@@ -121,9 +121,10 @@ class Infinite(Exercise):
             painter.setBrush(QBrush(self.get_color(), Qt.SolidPattern))
             painter.drawEllipse(self.__x, self.__y, self.get_size(), self.get_size())
 
+
     def __update_position(self):
         current_time = time.perf_counter() #for data saving
-        
+
         self.__averageAngleSpeed = self.__two_pi * self.__speed / self.__coef_speed
         self.__averageAngleSpeed = self.__averageAngleSpeed * self.__coef_averageAngleSpeed
 
@@ -173,6 +174,7 @@ class Infinite(Exercise):
                 round(self.__x, 2),
                 round(self.__y, 2)
             )
+ 
 
     def __update(self):
         self.__update_position()
